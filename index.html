@@ -1,0 +1,40 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Images</title>
+    <link rel="stylesheet" href="styles/style3.css">
+</head>
+<body>
+    <div class="container">
+        <img class="pasha" src="img/pasha.jpg" alt="Pasha">
+        <img class="clown" src="img/clown.jpg" alt="Clown">
+    </div>
+    <div class="container2">
+        <img class="arsenii" src="img/arsenii.jpg" alt="arsenii">
+        <img class="tiger" src="img/tiger.jpg" alt="arsenii">
+    </div>
+    <div>
+        <button class="start">Tap me</button>
+    </div>
+    <!-- Элемент для скримера -->
+    <div id="screamer" class="screamer" style="display: none;">
+        <img src="https://i.pinimg.com/564x/55/e8/42/55e8422f53f322c307443aa6e8e670ab.jpg" alt="Screamer">
+        <audio id="scream-audio" src="audio/audio.mp3"></audio>
+    </div>
+
+    <script>
+        // Скрипт для показа скримера по нажатию на кнопку
+        document.querySelector(".start").addEventListener("click", function() {
+            var screamer = document.getElementById("screamer");
+            var audio = document.getElementById("scream-audio");
+
+            // Показываем скример
+            screamer.style.display = "block";
+
+            // Проигрываем аудио
+            audio.play();
+        });
+    </script>
+</body>
+</html>

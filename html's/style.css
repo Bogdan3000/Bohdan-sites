@@ -1,0 +1,24 @@
+@keyframes colorChange {
+    0% { color: red; }
+    16.6% { color: orange; }
+    33.2% { color: yellow; }
+    49.8% { color: green; }
+    66.4% { color: blue; }
+    83% { color: purple; }
+    100% { color: red; }
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    font-family: 'Comic Sans MS', cursive;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 3rem;
+    animation: colorChange 5s infinite;
+}

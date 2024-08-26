@@ -1,0 +1,95 @@
+.container, .container2 {
+    position: relative;
+    display: inline-block;
+    width: 400px;
+    height: 400px;
+    overflow: hidden; /* Обрезаем содержимое за пределами контейнера */
+    border-radius: 15px; /* Закругленные углы */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для объемности */
+    transition: transform 0.3s ease; /* Плавный переход для эффекта наведения */
+}
+
+.container:hover, .container2:hover {
+    transform: scale(1.05); /* Легкое увеличение при наведении */
+}
+
+.pasha, .clown, .arsenii, .tiger {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: opacity 0.5s ease; /* Плавный переход для смены изображений */
+}
+
+.pasha, .arsenii {
+    opacity: 1;
+}
+
+.clown, .tiger {
+    opacity: 0;
+}
+
+.container:hover .clown, .container2:hover .tiger {
+    opacity: 1;
+}
+
+.container:hover .pasha, .container2:hover .arsenii {
+    opacity: 0;
+}
+
+.screamer {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: -150;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255, 255, 255); /* Полупрозрачный черный фон */
+    z-index: 1000;
+    justify-content: flex-start; /* Выравнивание по левому краю */
+    align-items: center;
+    text-align: left; /* Выравнивание текста по левому краю */
+    padding-left: 10%; /* Отступ от левого края */
+}
+
+.screamer img {
+    max-width: 30%; /* Ограничение ширины изображения */
+    max-height: 100%;
+}
+
+/* Стиль для кнопки */
+button.start {
+    background-color: #ff4c4c; /* Яркий красный цвет фона кнопки */
+    color: white; /* Белый текст */
+    padding: 15px 50%;
+    font-size: 18px;
+    border: none;
+    border-radius: 50px; /* Закругленные углы */
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease; /* Плавный переход */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Тень для объемности */
+    margin: 20px -40px;
+}
+
+@keyframes colorChange {
+    0% { background-color: red; }
+    16.6% { background-color: orange; }
+    33.2% { background-color: yellow; }
+    49.8% { background-color: green; }
+    66.4% { background-color: blue; }
+    83% { background-color: purple; }
+    100% { background-color: red; }
+}
+
+button.start:hover {
+    animation: colorChange 1s infinite;
+    transform: scale(1.1); /* Легкое увеличение при наведении */
+}
+
+button.start:active {
+    transform: scale(1.05); /* Легкое уменьшение при нажатии */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3); /* Тень при нажатии */
+}
+

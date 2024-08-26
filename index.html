@@ -1,184 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
-    >
-    <title>Bohdan's projects</title>
-    <link rel="stylesheet" href="glitch.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oversikt</title>
     <style>
-      @font-face {
-        font-family: 'Chalkboard';
-        src: url('Chalkboard-Regular.ttf') format('truetype');
-        font-weight: normal;
-        font-style: normal;
-      }
-      body {
-        background: #000;
-        margin: 0px;
-        font-family: 'Chalkboard', cursive;
-        height: -webkit-fill-available;
-        width: 100vw;
-        height: 100vh;
-        overflow: hidden;
-        user-select: none;
-      }
-      * {
-        outline: none;
-        border: none;
-      }
-      div.background {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        opacity: 0.5;
-        filter: blur(5px);
-        background: url(/img/background.webp) center no-repeat;
-        background-size: cover;
-        z-index: -1;
-        animation: back 5s ease-in-out infinite;
-      }
-      div.content {
-        min-height: 100%;
-        width: 100vw;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: space-between;
-      }
-      div.text {
-        font-size: 50px;
-        margin: 0 20px;
-        text-align: center;
-      }
-      a {
-        text-decoration: none;
-        margin-bottom: 40px;
-        font-size: 20px !important;
-      }
-      @keyframes back {
-        50% {
-          filter: blur(3px);
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 20px;
         }
-      }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #007BFF;
+            font-size: 18px;
+            border: 1px solid #007BFF;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: block;
+            text-align: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        a:hover {
+            background-color: #007BFF;
+            color: white;
+        }
     </style>
-  </head>
-  <body>
-    <div class="background"></div>
-    <div class="content">
-      <div></div>
-      <div class="text hero">
-        B<span class="glitch layers" data-text="our"><span>ohdans</span></span>
-        project will be here!
-      </div>
-      <a href="mailto:info@bohdan.lol" class="hero" data-text="info@bohdan.lol"
-        ><span>info@bohdan.lol</span></a
-      >
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.153.0/build/three.min.js"></script>
-    <script>
-      let scene,
-        camera,
-        renderer,
-        cloudParticles = [],
-        flash;
-      function init() {
-        scene = new THREE.Scene();
-        camera = new THREE.PerspectiveCamera(
-          60,
-          window.innerWidth / window.innerHeight,
-          1,
-          1000
-        );
-        camera.position.z = 1;
-        camera.rotation.x = 1.16;
-        camera.rotation.y = -0.12;
-        camera.rotation.z = 0.27;
-        ambient = new THREE.AmbientLight(0x555555);
-        scene.add(ambient);
-        directionalLight = new THREE.DirectionalLight(0xffeedd);
-        directionalLight.position.set(0, 0, 1);
-        scene.add(directionalLight);
-        flash = new THREE.PointLight(0x062d89, 30, 500, 1.7);
-        flash.position.set(200, 300, 100);
-        scene.add(flash);
-        renderer = new THREE.WebGLRenderer({ alpha: true });
-        scene.fog = new THREE.FogExp2(0x11111f, 0.002);
-        renderer.setClearColor(0x11111f, 0.002);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.domElement.style.position = "fixed";
-        renderer.domElement.style.top = 0;
-        document.body.appendChild(renderer.domElement);
-        let loader = new THREE.TextureLoader();
-        loader.load("/img/smoke.webp", function (texture) {
-          cloudGeo = new THREE.PlaneBufferGeometry(500, 500);
-          cloudMaterial = new THREE.MeshLambertMaterial({
-            map: texture,
-            transparent: true,
-          });
-          for (let p = 0; p < 40; p++) {
-            let cloud = new THREE.Mesh(cloudGeo, cloudMaterial);
-            cloud.position.set(
-              Math.random() * 1000 - 400,
-              500,
-              Math.random() * 500 - 550
-            );
-            cloud.rotation.x = 1.16;
-            cloud.rotation.y = -0.12;
-            cloud.rotation.z = Math.random() * 360;
-            cloud.material.opacity = 0.6;
-            cloudParticles.push(cloud);
-            scene.add(cloud);
-          }
-          animate();
-        });
-      }
-      function animate() {
-        cloudParticles.forEach((p) => {
-          p.rotation.z -= 0.002;
-        });
-        if (Math.random() > 0.93 || flash.power > 100) {
-          if (flash.power < 100)
-            flash.position.set(
-              Math.random() * 400,
-              300 + Math.random() * 200,
-              100
-            );
-          flash.power = 50 + Math.random() * 500;
-        }
-        renderer.render(scene, camera);
-        requestAnimationFrame(animate);
-      }
-      init();
-      window.addEventListener("resize", () => {
-        const height = window.innerHeight;
-        const width = window.innerWidth;
-        renderer.setSize(width, height);
-        camera.aspect = width / height;
-        camera.updateProjectionMatrix();
-      });
-      // window.onload = () => {
-      //   setTimeout(() => {
-      //     for (let i = 0; i < 1 << 5; i++) {
-      //       console.log(9n << 999999n);
-      //     }
-      //   }, 1000);
-      // };
-      // for (let i = 0; i < 1<<16; i++) {
-      // alert(9n<<(9n<<99n))
-      // img = document.createElement("img");
-      // img.src="data:image/gif,GIF89a,FFFFFFFF";
-      // img.style.position="relative";
-      // img.style.right=Math.random()*(1<<31)
-      // img.style.bottom=Math.random()*(1<<31)
-      // document.body.append(img);
-      // }
-    </script>
-  </body>
+</head>
+<body>
+    <h1>Oversikt</h1>
+    <ul>
+        <li><a href="HTML-tag.html">HTML-tag</a></li>
+        <li><a href="Overskrifter.html">Overskrifter</a></li>
+    </ul>
+</body>
 </html>

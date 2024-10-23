@@ -20,7 +20,7 @@
       font-family: 'Chalkboard', cursive;
       width: 100vw;
       height: 100vh;
-      overflow: hidden; /* Запрет на прокрутку */
+      overflow: hidden;
       user-select: none;
     }
     * {
@@ -62,7 +62,7 @@
     .links {
       display: flex;
       justify-content: center;
-      gap: 20px; /* Уменьшено расстояние между иконками */
+      gap: 20px;
       margin-top: 20px;
       font-size: 18px;
       flex-wrap: wrap;
@@ -72,11 +72,11 @@
       text-decoration: none;
       display: flex;
       align-items: center;
-      opacity: 0; /* Изначально скрываем иконки */
-      animation: fadeIn 1s forwards; /* Добавляем анимацию */
-      animation-delay: var(--delay); /* Задержка анимации */
-      padding: 5px 5px; /* Отступы: меньше слева, больше справа */
-      margin: 0 0; /* Уменьшение вертикального отступа между иконками */
+      opacity: 0;
+      animation: fadeIn 1s forwards;
+      animation-delay: var(--delay);
+      padding: 5px 5px;
+      margin: 0 0;
     }
     .links a i {
       margin-right: 10px;
@@ -91,17 +91,17 @@
     }
     @keyframes fadeIn {
       from {
-        opacity: 0; /* Начальная прозрачность */
-        transform: translateY(20px); /* Сдвиг вниз */
+        opacity: 0;
+        transform: translateY(20px);
       }
       to {
-        opacity: 1; /* Конечная прозрачность */
-        transform: translateY(0); /* Вернуться в исходное положение */
+        opacity: 1;
+        transform: translateY(0);
       }
     }
     @media (max-width: 768px) {
       div.text {
-        font-size: 40px; /* Увеличение шрифта на мобильных устройствах */
+        font-size: 40px;
       }
       .links {
         font-size: 16px;
@@ -112,15 +112,14 @@
     }
     @media (max-width: 480px) {
       div.text {
-        font-size: 36px; /* Увеличение шрифта для очень маленьких экранов */
+        font-size: 36px;
       }
       .links {
-        gap: 10px; /* Уменьшение промежутка между ссылками */
+        gap: 10px;
       }
-      /* Добавляем стиль для почты */
       a.hero {
-        margin-bottom: 20px; /* Увеличение отступа снизу */
-        font-size: 16px; /* Размер шрифта для мобильных устройств */
+        margin-bottom: 20px;
+        font-size: 16px;
       }
     }
   </style>
@@ -153,6 +152,6 @@
     <span>info@bohdan.lol</span>
   </a>
 </div>
-
 </body>
 </html>
+<!-- Спасибо https://vk.com/devgg и ban.su за предоставленный код -->

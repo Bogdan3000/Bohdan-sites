@@ -282,7 +282,7 @@
 
 @keyframes movement {
   0% {
-    top: 0px;
+    top: 0;
     left: -20px;
   }
 
@@ -399,6 +399,5 @@
   color: #fff;
   z-index: 2;
 
-  /* Bright things in dark environments usually cast that light, giving off a glow */
   filter: drop-shadow(0 1px 3px);
 }

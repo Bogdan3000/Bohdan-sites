@@ -1,0 +1,257 @@
+/* Общий стиль */
+body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f9;
+    color: #333;
+}
+
+.container {
+    width: 90%;
+    margin: 0 auto;
+}
+
+header {
+    background: linear-gradient(135deg, #9bceff, #005f99);
+    padding: 30px 0;
+    text-align: center;
+    color: white;
+}
+
+header h1 {
+    font-size: 3em;
+    font-weight: 700;
+    margin: 0;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0 0;
+}
+
+nav ul li {
+    display: inline-block;
+    margin-right: 30px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: white;
+    font-weight: 400;
+    font-size: 1.2em;
+    transition: color 0.3s ease;
+}
+.git {
+    text-decoration: none;
+    color: rgb(255, 0, 0);
+    font-weight: 400;
+    font-size: 1.2em;
+    transition: color 0.3s ease;
+}
+.git:hover{
+    color: red;
+}
+nav ul li a:hover {
+    color: #FFD700;
+}
+
+/* Основной стиль */
+main {
+    padding: 50px 0;
+}
+
+h2 {
+    text-align: center;
+    color: #005f99;
+    font-size: 2.5em;
+    font-weight: 700;
+    margin-bottom: 40px;
+}
+
+/* Карточки с рецептами */
+.recipe-card-container {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+.recipe-card {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    width: 40%; /* Уменьшите ширину карточек */
+    margin: 15px; /* Добавьте отступы между карточками */
+    max-width: 300px; /* Ограничьте максимальную ширину */
+}
+
+.recipe-card img {
+    width: 100%;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+
+.recipe-card-content {
+    padding: 20px;
+}
+
+.recipe-card h3 {
+    margin-top: 0;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.recipe-info {
+    padding: 0;
+    list-style-type: none;
+    line-height: 1.5;
+}
+
+.steps {
+    padding-left: 20px;
+    list-style-type: decimal;
+}
+
+.recipe-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #005f99;
+    color: white;
+    border-radius: 30px;
+    text-decoration: none;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.recipe-link:hover {
+    background-color: #ff7e5f;
+}
+
+/* Анимации для карточек */
+.recipe-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+    background-color: #f9f9f9; /* Слегка изменяем фон */
+}
+
+a {
+    text-decoration: none;
+}
+
+.categories {
+    list-style-type: none;
+    padding: 0;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.categories li {
+    display: inline-block;
+    margin-right: 15px;
+}
+
+.categories li a {
+    font-weight: 500;
+    text-decoration: none;
+    color: #005f99;
+    font-size: 1.1em;
+    transition: color 0.3s ease;
+}
+
+.categories li a:hover {
+    color: #FFD700;
+}
+
+/* Модальное окно */
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; /* Остается на экране при прокрутке */
+    z-index: 1; /* На переднем плане */
+    left: 0;
+    top: 0;
+    width: 100%; /* Полная ширина */
+    height: 100%; /* Полная высота */
+    overflow: auto; /* Прокрутка, если нужно */
+    background-color: rgb(0, 0, 0); /* Черный фон с прозрачностью */
+    background-color: rgba(0, 0, 0, 0.4); /* Полупрозрачный черный фон */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% от верхней и 5% от боковой стороны */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Ширина модального окна */
+    max-width: 600px; /* Максимальная ширина модального окна */
+    border-radius: 10px;
+    opacity: 0; /* Изначально скрыто */
+    animation: fadeIn 0.4s ease forwards; /* Анимация при открытии */
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Анимация для заголовков */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-50px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+h2 {
+    animation: slideIn 0.5s ease forwards;
+}
+
+/* Появление карточек рецептов */
+.recipe-card {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.6s ease forwards;
+    animation-delay: 0.1s; /* Задержка для каждого элемента */
+}
+
+.recipe-card:nth-child(1) { animation-delay: 0.1s; }
+.recipe-card:nth-child(2) { animation-delay: 0.2s; }
+.recipe-card:nth-child(3) { animation-delay: 0.3s; }
+.recipe-card:nth-child(4) { animation-delay: 0.4s; }
+.recipe-card:nth-child(5) { animation-delay: 0.5s; }
+
+/* Анимация для текста в модальном окне */
+.modal-content h2,
+.modal-content p {
+    animation: fadeIn 0.5s ease-in forwards;
+}
+
+.modal-content h2.show,
+.modal-content p.show {
+    opacity: 1; /* Полная видимость */
+}
+
+/* Анимация появления текста */
+.fade-in {
+    animation: fadeIn 0.5s ease-in forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

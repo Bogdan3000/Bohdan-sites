@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oppskrifter</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <h1>Oppskrifter</h1>
+            <nav>
+                <ul>
+                    <li><a href="#middag">Middag</a></li>
+                    <li><a href="#dessert">Dessert</a></li>
+                    <li><a href="#baking">Baking</a></li>
+                    <li><a class="git" href="https://github.com/Bogdan3000/Bohdan-sites/tree/23.10.2024" target="_blank">Git Repository</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="middag" class="recipe-section">
+            <h2>Middag</h2>
+            <ul class="categories">
+                <li><a onclick="openModal('kjott')">Kjøtt</a></li>
+                <li><a onclick="openModal('fisk')">Fisk</a></li>
+                <li><a onclick="openModal('suppe')">Suppe</a></li>
+                <li><a href="#baking">Annet</a></li>
+            </ul>
+
+            <div class="recipe-card-container">
+                <article id="kjott" class="recipe-card">
+                    <img src="img/kjott.jpg" alt="Kjøttrett">
+                    <div class="recipe-card-content">
+                        <h3>Kjøtt</h3>
+                        <p>En deilig kjøttrett med grønnsaker og krydder.</p>
+                        <button class="recipe-link" onclick="openModal('kjott')">Les mer</button>
+                    </div>
+                </article>
+
+                <article id="fisk" class="recipe-card">
+                    <img src="img/fisk.jpg" alt="Fiskrett">
+                    <div class="recipe-card-content">
+                        <h3>Fisk</h3>
+                        <p>En smakfull fiskrett med sitron og dill.</p>
+                        <button class="recipe-link" onclick="openModal('fisk')">Les mer</button>
+                    </div>
+                </article>
+
+                <article id="suppe" class="recipe-card"> <!-- Исправлено на 'suppe' -->
+                    <img src="img/suppe.jpg" alt="Suppe">
+                    <div class="recipe-card-content">
+                        <h3>Suppe</h3>
+                        <p>En varm og kremet suppe perfekt for kalde dager.</p>
+                        <button class="recipe-link" onclick="openModal('suppe')">Les mer</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="dessert" class="recipe-section">
+            <h2>Dessert</h2>
+            <div class="recipe-card-container">
+                <article id="crepes" class="recipe-card">
+                    <img src="img/crepes.jpg" alt="Crepes">
+                    <div class="recipe-card-content">
+                        <h3>Crepes</h3>
+                        <p>Delikate crepes med sjokoladefyll.</p>
+                        <button class="recipe-link" onclick="openModal('crepes')">Les mer</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section id="baking" class="recipe-section">
+            <h2>Baking</h2>
+            <div class="recipe-card-container">
+                <article id="smultringer" class="recipe-card">
+                    <img src="img/smultringer.jpg" alt="Smultringer">
+                    <div class="recipe-card-content">
+                        <h3>Smultringer</h3>
+                        <p>Sprø smultringer med sukker og kanel.</p>
+                        <button class="recipe-link" onclick="openModal('smultringer')">Les mer</button>
+                    </div>
+                </article>
+
+                <article id="boller" class="recipe-card">
+                    <img src="img/boller.jpg" alt="Boller">
+                    <div class="recipe-card-content">
+                        <h3>Boller</h3>
+                        <p>Myke og luftige boller med rosiner.</p>
+                        <button class="recipe-link" onclick="openModal('boller')">Les mer</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for recipe details -->
+    <div id="recipe-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modal-title">Tittel</h2>
+            <div id="modal-body">
+                <p>Detaljer om oppskriften vil vises her.</p>
+            </div>
+        </div>
+    </div>
+    <script src="scripts/script.js"></script>
+
+</body>
+</html>

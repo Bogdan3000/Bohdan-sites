@@ -3,7 +3,6 @@ function openModal(recipeId) {
     const title = document.getElementById('modal-title');
     const body = document.getElementById('modal-body');
 
-    // Убираем класс анимации появления для перезагрузки
     body.classList.remove('fade-in');
     
     switch (recipeId) {
@@ -131,7 +130,6 @@ function openModal(recipeId) {
             break;
     }
 
-    // Добавляем класс анимации появления
     body.classList.add('fade-in');
     modal.style.display = 'block';
 }
@@ -141,7 +139,6 @@ function closeModal() {
     modal.style.display = 'none';
 }
 
-// Закрываем модальное окно, если кликнули вне его
 window.onclick = function(event) {
     const modal = document.getElementById('recipe-modal');
     if (event.target == modal) {

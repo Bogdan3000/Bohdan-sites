@@ -1,4 +1,3 @@
-/* Общий стиль */
 body {
     font-family: 'Roboto', sans-serif;
     margin: 0;
@@ -57,7 +56,7 @@ nav ul li a:hover {
     color: #FFD700;
 }
 
-/* Основной стиль */
+/* Hvis du leser dette, så har du funnet et påskeegg, godt gjort :) */
 main {
     padding: 50px 0;
 }
@@ -70,7 +69,6 @@ h2 {
     margin-bottom: 40px;
 }
 
-/* Карточки с рецептами */
 .recipe-card-container {
     display: flex;
     justify-content: space-around;
@@ -82,9 +80,9 @@ h2 {
     border-radius: 15px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    width: 40%; /* Уменьшите ширину карточек */
-    margin: 15px; /* Добавьте отступы между карточками */
-    max-width: 300px; /* Ограничьте максимальную ширину */
+    width: 40%; 
+    margin: 15px;
+    max-width: 300px;
 }
 
 .recipe-card img {
@@ -129,12 +127,12 @@ h2 {
     background-color: #ff7e5f;
 }
 
-/* Анимации для карточек */
+
 .recipe-card:hover {
     transform: scale(1.05);
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-    background-color: #f9f9f9; /* Слегка изменяем фон */
+    background-color: #f9f9f9;
 }
 
 a {
@@ -165,30 +163,30 @@ a {
     color: #FFD700;
 }
 
-/* Модальное окно */
+
 .modal {
-    display: none; /* Скрыто по умолчанию */
-    position: fixed; /* Остается на экране при прокрутке */
-    z-index: 1; /* На переднем плане */
+    display: none;
+    position: fixed;
+    z-index: 1;
     left: 0;
     top: 0;
-    width: 100%; /* Полная ширина */
-    height: 100%; /* Полная высота */
-    overflow: auto; /* Прокрутка, если нужно */
-    background-color: rgb(0, 0, 0); /* Черный фон с прозрачностью */
-    background-color: rgba(0, 0, 0, 0.4); /* Полупрозрачный черный фон */
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0); 
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto; /* 15% от верхней и 5% от боковой стороны */
+    margin: 15% auto; 
     padding: 20px;
     border: 1px solid #888;
-    width: 80%; /* Ширина модального окна */
-    max-width: 600px; /* Максимальная ширина модального окна */
+    width: 80%; 
+    max-width: 600px; 
     border-radius: 10px;
-    opacity: 0; /* Изначально скрыто */
-    animation: fadeIn 0.4s ease forwards; /* Анимация при открытии */
+    opacity: 0; 
+    animation: fadeIn 0.4s ease forwards;
 }
 
 .close {
@@ -205,7 +203,6 @@ a {
     cursor: pointer;
 }
 
-/* Анимация для заголовков */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(-50px); }
     to { opacity: 1; transform: translateY(0); }
@@ -215,12 +212,12 @@ h2 {
     animation: slideIn 0.5s ease forwards;
 }
 
-/* Появление карточек рецептов */
+
 .recipe-card {
     opacity: 0;
     transform: translateY(20px);
     animation: fadeIn 0.6s ease forwards;
-    animation-delay: 0.1s; /* Задержка для каждого элемента */
+    animation-delay: 0.1s; 
 }
 
 .recipe-card:nth-child(1) { animation-delay: 0.1s; }
@@ -229,7 +226,7 @@ h2 {
 .recipe-card:nth-child(4) { animation-delay: 0.4s; }
 .recipe-card:nth-child(5) { animation-delay: 0.5s; }
 
-/* Анимация для текста в модальном окне */
+
 .modal-content h2,
 .modal-content p {
     animation: fadeIn 0.5s ease-in forwards;
@@ -237,10 +234,10 @@ h2 {
 
 .modal-content h2.show,
 .modal-content p.show {
-    opacity: 1; /* Полная видимость */
+    opacity: 1; 
 }
 
-/* Анимация появления текста */
+
 .fade-in {
     animation: fadeIn 0.5s ease-in forwards;
 }

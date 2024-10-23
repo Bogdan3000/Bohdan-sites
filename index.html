@@ -20,7 +20,7 @@
       font-family: 'Chalkboard', cursive;
       width: 100vw;
       height: 100vh;
-      overflow: hidden;
+      overflow: hidden; /* Запрет на прокрутку */
       user-select: none;
     }
     * {
@@ -47,7 +47,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: space-between;
-      padding: 20px;
+      padding: 0;
     }
     div.text {
       font-size: 50px;
@@ -62,7 +62,7 @@
     .links {
       display: flex;
       justify-content: center;
-      gap: 20px;
+      gap: 20px; /* Уменьшено расстояние между иконками */
       margin-top: 20px;
       font-size: 18px;
       flex-wrap: wrap;
@@ -72,6 +72,11 @@
       text-decoration: none;
       display: flex;
       align-items: center;
+      opacity: 0; /* Изначально скрываем иконки */
+      animation: fadeIn 1s forwards; /* Добавляем анимацию */
+      animation-delay: var(--delay); /* Задержка анимации */
+      padding: 5px 5px; /* Отступы: меньше слева, больше справа */
+      margin: 0 0; /* Уменьшение вертикального отступа между иконками */
     }
     .links a i {
       margin-right: 10px;
@@ -84,9 +89,19 @@
         filter: blur(3px);
       }
     }
+    @keyframes fadeIn {
+      from {
+        opacity: 0; /* Начальная прозрачность */
+        transform: translateY(20px); /* Сдвиг вниз */
+      }
+      to {
+        opacity: 1; /* Конечная прозрачность */
+        transform: translateY(0); /* Вернуться в исходное положение */
+      }
+    }
     @media (max-width: 768px) {
       div.text {
-        font-size: 30px;
+        font-size: 40px; /* Увеличение шрифта на мобильных устройствах */
       }
       .links {
         font-size: 16px;
@@ -101,10 +116,10 @@
     }
     @media (max-width: 480px) {
       div.text {
-        font-size: 24px;
+        font-size: 36px; /* Увеличение шрифта для очень маленьких экранов */
       }
       .links {
-        gap: 10px;
+        gap: 10px; /* Уменьшение промежутка между ссылками */
       }
     }
   </style>
@@ -116,19 +131,19 @@
   <div class="text hero">
     Hello on <span class="glitch layers" data-text="our"><span>Bohdan's</span></span> page! You know what to do :)
     <div class="links">
-      <a href="https://discord.name/559440954524696606" target="_blank">
+      <a href="https://discord.name/559440954524696606" target="_blank" style="--delay: 0s;">
         <i class="fab fa-discord"></i> Discord
       </a>
-      <a href="https://steamcommunity.com/id/wiIk_wq/" target="_blank">
+      <a href="https://steamcommunity.com/id/wiIk_wq/" target="_blank" style="--delay: 0.1s;">
         <i class="fab fa-steam"></i> Steam
       </a>
-      <a href="https://youtube.com/@bogdan3000" target="_blank">
+      <a href="https://youtube.com/@bogdan3000" target="_blank" style="--delay: 0.2s;">
         <i class="fab fa-youtube"></i> YouTube
       </a>
-      <a href="https://vk.com/id518705815" target="_blank">
+      <a href="https://vk.com/id518705815" target="_blank" style="--delay: 0.3s;">
         <i class="fab fa-vk"></i> VK
       </a>
-      <a href="https://t.me/wiIk_wq" target="_blank">
+      <a href="https://t.me/wiIk_wq" target="_blank" style="--delay: 0.4s;">
         <i class="fab fa-telegram"></i> Telegram
       </a>
     </div>

@@ -6,20 +6,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Student List</title>
 
-  <style>
-    @font-face {
-      font-family: 'Chalkboard';
-      src: url('https://bohdan.lol/Chalkboard-Regular.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-    }
+  <!-- Подключаем Comic Neue через Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
 
+  <style>
     body {
       background-color: rgba(31,31,31,255);
       color: white;
       margin: 0;
-      font-family: 'Chalkboard', cursive;
-      overflow-y: auto; /* Добавляем прокрутку */
+      font-family: 'Comic Neue', sans-serif; /* Используем Comic Neue */
+      overflow-y: auto;
       height: auto;
       user-select: none;
     }
@@ -55,12 +51,12 @@
     table th, table td {
       padding: 10px;
       border: 1px solid #444;
-      text-align: left; /* Студенты выравниваются по левому краю */
+      text-align: left;
     }
 
     table th {
       background-color: #333;
-      text-align: center; /* Группа выравнивается по центру */
+      text-align: center;
     }
 
     table tr:nth-child(even) {

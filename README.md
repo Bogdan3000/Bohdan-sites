@@ -1,9 +1,5 @@
 # 🎓 Nanolearning: Filsystemer & RAID
 
-![Banner](https://via.placeholder.com/800x200/3498db/ffffff?text=Nanolearning)
-
-## 📋 Om prosjektet
-
 Dette prosjektet er en nanolearning-nettside som fokuserer på to viktige temaer innen teknologiforståelse: **Filsystemer** og **RAID**. Hver av disse temaene er delt inn i tre korte læringsmoduler som tar 1-3 minutter å gjennomgå.
 
 **Live demo:** [https://nanolearning.bohdan.lol](https://nanolearning.bohdan.lol)

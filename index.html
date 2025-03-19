@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nanolearning: Filsystem og RAID</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Nanolearning</div>
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon"></i>
+        </button>
+    </header>
+
+    <main>
+        <div class="tabs">
+            <button class="tab active" data-topic="filesystem">Filsystemer</button>
+            <button class="tab" data-topic="raid">RAID</button>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0/6 fullført</div>
+
+        <!-- Filesystem Content -->
+        <div class="topic-container active" id="filesystem">
+            <h2>Filsystemer</h2>
+
+            <div class="subtopic" data-index="0">
+                <h3><i class="fas fa-hdd"></i> Typer filsystemer</h3>
+                <p>Et filsystem er en metode for å organisere og lagre filer på lagringsenheter. Forskjellige filsystemer har ulike egenskaper, begrensninger og bruksområder.</p>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Filsystem</th>
+                                <th>Maksimal filstørrelse</th>
+                                <th>Maksimal partisjonsstørrelse</th>
+                                <th>Operativsystem</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>FAT32</td>
+                                <td>4 GB</td>
+                                <td>2 TB</td>
+                                <td>Windows, Linux, macOS</td>
+                            </tr>
+                            <tr>
+                                <td>NTFS</td>
+                                <td>16 TB</td>
+                                <td>256 TB</td>
+                                <td>Windows (hoved)</td>
+                            </tr>
+                            <tr>
+                                <td>ext4</td>
+                                <td>16 TB</td>
+                                <td>1 EB</td>
+                                <td>Linux (hoved)</td>
+                            </tr>
+                            <tr>
+                                <td>APFS</td>
+                                <td>8 EB</td>
+                                <td>8 EB</td>
+                                <td>macOS (hoved)</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p>Valg av filsystem avhenger av operativsystem, ytelseskrav og kompatibilitet med andre enheter.</p>
+            </div>
+
+            <div class="subtopic" data-index="1">
+                <h3><i class="fas fa-folder-tree"></i> Hierarkisk mappestruktur</h3>
+                <p>Filsystemer organiserer filer i en hierarkisk mappestruktur, også kalt en trestruktur.</p>
+                <div class="code-block">
+                    <pre>
+/                   # Rotmappe
+├── bin/           # Kjørbare filer
+├── etc/           # Konfigurasjonsfiler
+├── home/          # Brukernes hjemmemapper
+│   ├── user1/     # Hjemmemappe for bruker user1
+│   └── user2/     # Hjemmemappe for bruker user2
+├── var/           # Variable data
+└── tmp/           # Midlertidige filer
+                    </pre>
+                </div>
+
+                <p>I Windows er strukturen annerledes enn i Linux/Unix, og starter med stasjonsbokstaver:</p>
+                <div class="code-block">
+                    <pre>
+C:\                # Systemdisk
+├── Program Files\ # Programmer
+├── Users\         # Brukere
+│   ├── User1\     # Mappe for bruker User1
+│   └── User2\     # Mappe for bruker User2
+├── Windows\       # Systemfiler
+└── Temp\          # Midlertidige filer
+                    </pre>
+                </div>
+
+                <p>Denne strukturen gjør det mulig å organisere informasjon logisk og administrere tilgang til filer og mapper.</p>
+            </div>
+
+            <div class="subtopic" data-index="2">
+                <h3><i class="fas fa-lock"></i> Filtillatelser</h3>
+                <p>Filtillatelser er en mekanisme som bestemmer hvem som kan utføre hvilke handlinger med filer og mapper.</p>
+
+                <p>I Unix/Linux brukes en tillatelsesmodell som består av tre brukerkategorier:</p>
+                <ul>
+                    <li><strong>Eier (u)</strong> — brukeren som opprettet filen</li>
+                    <li><strong>Gruppe (g)</strong> — brukergruppen som filen tilhører</li>
+                    <li><strong>Andre (o)</strong> — alle andre brukere</li>
+                </ul>
+
+                <p>Og tre hovedtyper tillatelser:</p>
+                <ul>
+                    <li><strong>r (lese)</strong> — rett til å vise innholdet i filen</li>
+                    <li><strong>w (skrive)</strong> — rett til å endre filen</li>
+                    <li><strong>x (utføre)</strong> — rett til å kjøre filen som et program</li>
+                </ul>
+
+                <div class="code-block">
+$ ls -l
+-rwxr-xr-- 1 user1 group1 4096 Mar 19 12:34 script.sh
+drwxr-x--- 2 user1 group1 4096 Mar 19 12:35 docs/
+                </div>
+
+                <p>Windows bruker et mer komplekst tilgangskontrollsystem (ACL) som gir mer fleksibel tillatelseskonfigurasjon for forskjellige brukere og grupper.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn prev-btn" disabled><i class="fas fa-arrow-left"></i> Tilbake</button>
+                <button class="nav-btn next-btn">Fremover <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+
+        <!-- RAID Content -->
+        <div class="topic-container" id="raid">
+            <h2>RAID (redundant matrise av uavhengige disker)</h2>
+
+            <div class="subtopic" data-index="3">
+                <h3><i class="fas fa-layer-group"></i> Grunnleggende RAID-nivåer</h3>
+                <p>RAID (Redundant Array of Independent Disks) — er en teknologi for å kombinere flere fysiske disker i en logisk matrise for å forbedre ytelse, pålitelighet i datalagring eller begge deler.</p>
+
+                <p>De mest vanlige RAID-nivåene:</p>
+
+                <h4>RAID 0 (striping)</h4>
+                <div class="visual-diagram">
+                    <div class="disk">
+                        <div class="disk-header">Disk 1</div>
+                        <div class="disk-data">
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A3</div>
+                            <div class="data-block data">A5</div>
+                            <div class="data-block data">A7</div>
+                        </div>
+                    </div>
+                    <div class="disk">
+                        <div class="disk-header">Disk 2</div>
+                        <div class="disk-data">
+                            <div class="data-block data">A2</div>
+                            <div class="data-block data">A4</div>
+                            <div class="data-block data">A6</div>
+                            <div class="data-block data">A8</div>
+                        </div>
+                    </div>
+                </div>
+                <p>Data fordeles mellom alle disker for å øke ytelsen, men uten redundans.</p>
+
+                <h4>RAID 1 (speiling)</h4>
+                <div class="visual-diagram">
+                    <div class="disk">
+                        <div class="disk-header">Disk 1</div>
+                        <div class="disk-data">
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block data">A3</div>
+                            <div class="data-block data">A4</div>
+                        </div>
+                    </div>
+                    <div class="disk">
+                        <div class="disk-header">Disk 2</div>
+                        <div class="disk-data">
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block data">A3</div>
+                            <div class="data-block data">A4</div>
+                        </div>
+                    </div>
+                </div>
+                <p>Data dupliseres på alle disker for å sikre redundans, men med redusert nyttevolum.</p>
+            </div>
+
+            <div class="subtopic" data-index="4">
+                <h3><i class="fas fa-balance-scale"></i> Fordeler og ulemper med forskjellige RAID-nivåer</h3>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>RAID</th>
+                                <th>Fordeler</th>
+                                <th>Ulemper</th>
+                                <th>Min. disker</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>RAID 0</td>
+                                <td>
+                                    <ul>
+                                        <li>Maksimal ytelse</li>
+                                        <li>100% volumutnyttelse</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Ingen feiltoleranse</li>
+                                        <li>Svikt i én disk fører til tap av alle data</li>
+                                    </ul>
+                                </td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>RAID 1</td>
+                                <td>
+                                    <ul>
+                                        <li>Høy feiltoleranse</li>
+                                        <li>Økt lesehastighet</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Kun 50% volumutnyttelse</li>
+                                        <li>Skrivehastighet økes ikke</li>
+                                    </ul>
+                                </td>
+                                <td>2</td>
+                            </tr>
+                            <tr>
+                                <td>RAID 5</td>
+                                <td>
+                                    <ul>
+                                        <li>God balanse mellom ytelse og redundans</li>
+                                        <li>Effektiv volumutnyttelse</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Langsomme skriveoperasjoner</li>
+                                        <li>Lang gjenoppbyggingstid</li>
+                                    </ul>
+                                </td>
+                                <td>3</td>
+                            </tr>
+                            <tr>
+                                <td>RAID 10</td>
+                                <td>
+                                    <ul>
+                                        <li>Høy ytelse og pålitelighet</li>
+                                        <li>Rask gjenoppretting</li>
+                                    </ul>
+                                </td>
+                                <td>
+                                    <ul>
+                                        <li>Kun 50% volumutnyttelse</li>
+                                        <li>Krever minimum 4 disker</li>
+                                    </ul>
+                                </td>
+                                <td>4</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h4>RAID 5 (striping med distribuert paritet)</h4>
+                <div class="visual-diagram">
+                    <div class="disk">
+                        <div class="disk-header">Disk 1</div>
+                        <div class="disk-data">
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block parity">P3</div>
+                        </div>
+                    </div>
+                    <div class="disk">
+                        <div class="disk-header">Disk 2</div>
+                        <div class="disk-data">
+                            <div class="data-block data">A4</div>
+                            <div class="data-block parity">P5</div>
+                            <div class="data-block data">A6</div>
+                        </div>
+                    </div>
+                    <div class="disk">
+                        <div class="disk-header">Disk 3</div>
+                        <div class="disk-data">
+                            <div class="data-block parity">P7</div>
+                            <div class="data-block data">A8</div>
+                            <div class="data-block data">A9</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #27ae60;"></div>
+                        <span>Data</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #e74c3c;"></div>
+                        <span>Paritet</span>
+                    </div>
+                </div>
+
+                <p>Ved valg av optimal RAID-nivå bør man vurdere krav til ytelse, feiltoleranse og budsjettbegrensninger.</p>
+            </div>
+
+            <div class="subtopic" data-index="5">
+                <h3><i class="fas fa-tools"></i> Datagjenoppretting ved diskfeil</h3>
+                <p>En av de viktigste fordelene med RAID er muligheten til å gjenopprette data når én eller flere disker svikter (unntatt RAID 0).</p>
+
+                <h4>Gjenopprettingsprosessen avhenger av RAID-nivået:</h4>
+
+                <ul>
+                    <li><strong>RAID 1</strong>: enkel kopiering av data fra speildisken</li>
+                    <li><strong>RAID 5</strong>: gjenoppretting ved bruk av paritetsinformasjon
+                        <div class="code-block">
+Tapte data = Data fra fungerende disker XOR paritetsinformasjon
+                        </div>
+                    </li>
+                    <li><strong>RAID 6</strong>: kan gjenopprettes etter svikt i to disker</li>
+                </ul>
+
+                <h4>Gjenopprettingstrinn:</h4>
+                <ol>
+                    <li>Identifisering av den defekte disken ved hjelp av RAID-kontrolleren eller programvaren</li>
+                    <li>Erstatning av den defekte disken med en ny med tilsvarende eller større kapasitet</li>
+                    <li>Initiering av gjenoppbyggingsprosessen (rebuild)                    </li>
+                    <li>Kontroll av dataintegriteten etter fullført gjenoppretting</li>
+                </ol>
+
+                <p><strong>Viktig!</strong> Under gjenopprettingsprosessen er matrisen i en degradert tilstand, og svikt i enda en disk kan føre til tap av alle data (unntatt RAID 6).</p>
+
+                <p>Til tross for påliteligheten til RAID, erstatter det ikke regelmessig sikkerhetskopiering av data. RAID beskytter mot maskinvaresvikt, men ikke mot utilsiktet sletting, virus eller logiske feil.</p>
+            </div>
+
+            <div class="navigation">
+                <button class="nav-btn prev-btn"><i class="fas fa-arrow-left"></i> Tilbake</button>
+                <button class="nav-btn next-btn">Fremover <i class="fas fa-arrow-right"></i></button>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2025 WiraProject. Bohdan</p>
+    </footer>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-theme');
+            if (body.classList.contains('dark-theme')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+
+        const tabs = document.querySelectorAll('.tab');
+        const topicContainers = document.querySelectorAll('.topic-container');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                topicContainers.forEach(container => {
+                    container.classList.remove('active');
+                });
+
+                const topicId = tab.getAttribute('data-topic');
+                document.getElementById(topicId).classList.add('active');
+
+                const firstSubtopic = document.querySelector(`#${topicId} .subtopic`);
+                currentSubtopicIndex = parseInt(firstSubtopic.getAttribute('data-index'));
+                updateSubtopicVisibility();
+                updateNavButtons();
+            });
+        });
+
+        const subtopics = document.querySelectorAll('.subtopic');
+        const prevBtn = document.querySelectorAll('.prev-btn');
+        const nextBtn = document.querySelectorAll('.next-btn');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        let currentSubtopicIndex = 0;
+        const totalSubtopics = subtopics.length;
+
+        function switchTab(topicId) {
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`.tab[data-topic="${topicId}"]`).classList.add('active');
+            topicContainers.forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(topicId).classList.add('active');
+        }
+
+        function updateSubtopicVisibility() {
+            const currentSubtopic = document.querySelector(`.subtopic[data-index="${currentSubtopicIndex}"]`);
+            if (!currentSubtopic) {
+                if (document.querySelector('#filesystem.active') && currentSubtopicIndex >= 3) {
+                    switchTab('raid');
+                }
+                else if (document.querySelector('#raid.active') && currentSubtopicIndex < 3) {
+                    switchTab('filesystem');
+                }
+            }
+            subtopics.forEach(subtopic => {
+                subtopic.style.display = 'none';
+            });
+            const subtopicToShow = document.querySelector(`.subtopic[data-index="${currentSubtopicIndex}"]`);
+            if (subtopicToShow) {
+                subtopicToShow.style.display = 'block';
+                subtopicToShow.style.animation = 'none';
+                subtopicToShow.offsetHeight;
+                subtopicToShow.style.animation = 'fadeIn 0.5s ease-in-out, slideUp 0.5s ease forwards';
+            }
+            const progress = ((currentSubtopicIndex + 1) / totalSubtopics) * 100;
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${currentSubtopicIndex + 1}/${totalSubtopics} fullført`;
+        }
+        function updateNavButtons() {
+            prevBtn.forEach(btn => {
+                btn.disabled = currentSubtopicIndex === 0;
+            });
+            nextBtn.forEach(btn => {
+                btn.disabled = currentSubtopicIndex === totalSubtopics - 1;
+            });
+        }
+        prevBtn.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (currentSubtopicIndex > 0) {
+                    currentSubtopicIndex--;
+                    if (currentSubtopicIndex === 2 && document.querySelector('#raid.active')) {
+                        switchTab('filesystem');
+                    }
+                    updateSubtopicVisibility();
+                    updateNavButtons();
+                }
+            });
+        });
+        nextBtn.forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (currentSubtopicIndex < totalSubtopics - 1) {
+                    currentSubtopicIndex++;
+                    if (currentSubtopicIndex === 3 && document.querySelector('#filesystem.active')) {
+                        switchTab('raid');
+                    }
+                    updateSubtopicVisibility();
+                    updateNavButtons();
+                }
+            });
+        });
+
+        updateSubtopicVisibility();
+        updateNavButtons();
+    </script>
+</body>
+</html>

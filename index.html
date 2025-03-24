@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Datatilsynet</title>
+    <title>Nanolearning: Filsystem og RAID</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <header>
-        <div class="logo">Datatilsynet</div>
+        <div class="logo">Nanolearning</div>
         <button class="theme-toggle" id="themeToggle">
             <i class="fas fa-moon"></i>
         </button>
@@ -17,8 +17,8 @@
 
     <main>
         <div class="tabs">
-            <button class="tab active" data-topic="rights">Rettigheter</button>
-            <button class="tab" data-topic="security">Informasjonssikkerhet</button>
+            <button class="tab active" data-topic="filesystem">Filsystemer</button>
+            <button class="tab" data-topic="raid">RAID</button>
         </div>
 
         <div class="progress-container">
@@ -26,97 +26,113 @@
         </div>
         <div class="progress-text" id="progressText">0/6 fullført</div>
 
-        <!-- Rettigheter Content -->
-        <div class="topic-container active" id="rights">
-            <h2>Personvernrettigheter</h2>
+        <!-- Filesystem Content -->
+        <div class="topic-container active" id="filesystem">
+            <h2>Filsystemer</h2>
 
             <div class="subtopic" data-index="0">
-                <h3><i class="fas fa-gavel"></i> Rett til å protestere</h3>
-                <p>I Norge og EU har du rett til å protestere mot behandling av dine personopplysninger i visse situasjoner. Denne rettigheten er forankret i personopplysningsloven og GDPR.</p>
+                <h3><i class="fas fa-hdd"></i> Typer filsystemer</h3>
+                <p>Et filsystem er en metode for å organisere og lagre filer på lagringsenheter. Forskjellige filsystemer har ulike egenskaper, begrensninger og bruksområder.</p>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Protestgrunnlag</th>
-                                <th>Når kan du protestere?</th>
-                                <th>Virksomhetens plikter</th>
+                                <th>Filsystem</th>
+                                <th>Maksimal filstørrelse</th>
+                                <th>Maksimal partisjonsstørrelse</th>
+                                <th>Operativsystem</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Berettiget interesse</td>
-                                <td>Når behandlingen er basert på virksomhetens eller tredjeparts legitime interesser</td>
-                                <td>Må stoppe behandlingen med mindre de kan påvise tvingende berettigede grunner</td>
+                                <td>FAT32</td>
+                                <td>4 GB</td>
+                                <td>2 TB</td>
+                                <td>Windows, Linux, macOS</td>
                             </tr>
                             <tr>
-                                <td>Direkte markedsføring</td>
-                                <td>Når opplysningene brukes til direkte markedsføring</td>
-                                <td>Må stoppe behandlingen umiddelbart, ingen unntak</td>
+                                <td>NTFS</td>
+                                <td>16 TB</td>
+                                <td>256 TB</td>
+                                <td>Windows (hoved)</td>
                             </tr>
                             <tr>
-                                <td>Forskning og statistikk</td>
-                                <td>Ved behandling for vitenskapelige, historiske forsknings- eller statistiske formål</td>
-                                <td>Kan fortsette hvis behandlingen er nødvendig for å utføre en oppgave i allmennhetens interesse</td>
+                                <td>ext4</td>
+                                <td>16 TB</td>
+                                <td>1 EB</td>
+                                <td>Linux (hoved)</td>
+                            </tr>
+                            <tr>
+                                <td>APFS</td>
+                                <td>8 EB</td>
+                                <td>8 EB</td>
+                                <td>macOS (hoved)</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <p>For å utøve din rett til å protestere, bør du kontakte den aktuelle virksomheten direkte. Hvis du ikke får svar eller er misfornøyd med svaret, kan du klage til Datatilsynet.</p>
+                <p>Valg av filsystem avhenger av operativsystem, ytelseskrav og kompatibilitet med andre enheter.</p>
             </div>
 
             <div class="subtopic" data-index="1">
-                <h3><i class="fas fa-edit"></i> Rett til retting</h3>
-                <p>Du har rett til å få rettet uriktige personopplysninger om deg selv, og du har rett til å få ufullstendige personopplysninger om deg selv komplettert.</p>
-
-                <h4>Hvordan fungerer retting?</h4>
+                <h3><i class="fas fa-folder-tree"></i> Hierarkisk mappestruktur</h3>
+                <p>Filsystemer organiserer filer i en hierarkisk mappestruktur, også kalt en trestruktur.</p>
                 <div class="code-block">
-Eksempel på retteforespørsel:
-
-Til: kundeservice@bedrift.no
-Emne: Anmodning om retting av personopplysninger
-
-Jeg ønsker å benytte min rett til retting etter personvernforordningen artikkel 16.
-Mine kontaktopplysninger hos dere er feil. Mitt korrekte telefonnummer er
-98765432 (ikke 12345678 som er registrert hos dere).
-
-Vennlig hilsen
-Ola Nordmann
+                    <pre>
+/                   # Rotmappe
+├── bin/           # Kjørbare filer
+├── etc/           # Konfigurasjonsfiler
+├── home/          # Brukernes hjemmemapper
+│   ├── user1/     # Hjemmemappe for bruker user1
+│   └── user2/     # Hjemmemappe for bruker user2
+├── var/           # Variable data
+└── tmp/           # Midlertidige filer
+                    </pre>
                 </div>
 
-                <p>Virksomheten har følgende plikter ved mottakelse av krav om retting:</p>
-                <ul>
-                    <li><strong>Tidsfrist</strong> — Svare uten unødig opphold, og senest innen 1 måned</li>
-                    <li><strong>Informasjonsplikt</strong> — Informere tredjeparter som har mottatt opplysningene om rettingen</li>
-                    <li><strong>Begrunnelse</strong> — Hvis retting ikke gjennomføres, må virksomheten begrunne dette</li>
-                </ul>
+                <p>I Windows er strukturen annerledes enn i Linux/Unix, og starter med stasjonsbokstaver:</p>
+                <div class="code-block">
+                    <pre>
+C:\                # Systemdisk
+├── Program Files\ # Programmer
+├── Users\         # Brukere
+│   ├── User1\     # Mappe for bruker User1
+│   └── User2\     # Mappe for bruker User2
+├── Windows\       # Systemfiler
+└── Temp\          # Midlertidige filer
+                    </pre>
+                </div>
 
-                <p>Hvis virksomheten avslår kravet om retting, har du rett til å klage til Datatilsynet.</p>
+                <p>Denne strukturen gjør det mulig å organisere informasjon logisk og administrere tilgang til filer og mapper.</p>
             </div>
 
             <div class="subtopic" data-index="2">
-                <h3><i class="fas fa-trash-alt"></i> Rett til sletting</h3>
-                <p>Retten til sletting (også kjent som "retten til å bli glemt") gir deg mulighet til å få dine personopplysninger slettet i visse situasjoner.</p>
+                <h3><i class="fas fa-lock"></i> Filtillatelser</h3>
+                <p>Filtillatelser er en mekanisme som bestemmer hvem som kan utføre hvilke handlinger med filer og mapper.</p>
 
-                <p>Du kan kreve sletting når:</p>
+                <p>I Unix/Linux brukes en tillatelsesmodell som består av tre brukerkategorier:</p>
                 <ul>
-                    <li>Opplysningene ikke lenger er nødvendige for formålet de ble samlet inn for</li>
-                    <li>Du trekker tilbake et samtykke som behandlingen er basert på</li>
-                    <li>Du protesterer mot behandlingen og det ikke finnes tungtveiende legitime grunner for behandlingen</li>
-                    <li>Opplysningene er behandlet ulovlig</li>
-                    <li>Opplysningene må slettes for å oppfylle en rettslig forpliktelse</li>
+                    <li><strong>Eier (u)</strong> — brukeren som opprettet filen</li>
+                    <li><strong>Gruppe (g)</strong> — brukergruppen som filen tilhører</li>
+                    <li><strong>Andre (o)</strong> — alle andre brukere</li>
+                </ul>
+
+                <p>Og tre hovedtyper tillatelser:</p>
+                <ul>
+                    <li><strong>r (lese)</strong> — rett til å vise innholdet i filen</li>
+                    <li><strong>w (skrive)</strong> — rett til å endre filen</li>
+                    <li><strong>x (utføre)</strong> — rett til å kjøre filen som et program</li>
                 </ul>
 
                 <div class="code-block">
-Fremgangsmåte for sletting:
-1. Identifiser hvilken virksomhet som behandler opplysningene
-2. Send en skriftlig anmodning om sletting
-3. Oppgi hvilke opplysninger du ønsker slettet og hvorfor
-4. Dokumenter din identitet
+$ ls -l
+-rwxr-xr-- 1 user1 group1 4096 Mar 19 12:34 script.sh
+drwxr-x--- 2 user1 group1 4096 Mar 19 12:35 docs/
                 </div>
 
-                <p><strong>Unntak fra retten til sletting:</strong> I noen tilfeller kan virksomheter avslå en anmodning om sletting, for eksempel når behandlingen er nødvendig for å oppfylle en rettslig forpliktelse, av hensyn til allmenne folkehelse-interesser, eller for arkivformål i allmennhetens interesse.</p>
+                <p>Windows bruker et mer komplekst tilgangskontrollsystem (ACL) som gir mer fleksibel tillatelseskonfigurasjon for forskjellige brukere og grupper.</p>
             </div>
 
             <div class="navigation">
@@ -125,197 +141,213 @@ Fremgangsmåte for sletting:
             </div>
         </div>
 
-        <!-- Informasjonssikkerhet Content -->
-        <div class="topic-container" id="security">
-            <h2>Informasjonssikkerhet og internkontroll</h2>
+        <!-- RAID Content -->
+        <div class="topic-container" id="raid">
+            <h2>RAID (redundant matrise av uavhengige disker)</h2>
 
             <div class="subtopic" data-index="3">
-                <h3><i class="fas fa-shield-alt"></i> Grunnleggende informasjonssikkerhet</h3>
-                <p>Informasjonssikkerhet handler om å beskytte personopplysninger mot uautorisert eller ulovlig behandling, tilfeldig tap, ødeleggelse eller skade. Virksomheter må iverksette tekniske og organisatoriske tiltak for å sikre et passende sikkerhetsnivå.</p>
+                <h3><i class="fas fa-layer-group"></i> Grunnleggende RAID-nivåer</h3>
+                <p>RAID (Redundant Array of Independent Disks) — er en teknologi for å kombinere flere fysiske disker i en logisk matrise for å forbedre ytelse, pålitelighet i datalagring eller begge deler.</p>
 
-                <p>De tre grunnpilarene i informasjonssikkerhet:</p>
+                <p>De mest vanlige RAID-nivåene:</p>
 
-                <h4>Konfidensialitet</h4>
+                <h4>RAID 0 (striping)</h4>
                 <div class="visual-diagram">
                     <div class="disk">
-                        <div class="disk-header">Konfidensialitet</div>
+                        <div class="disk-header">Disk 1</div>
                         <div class="disk-data">
-                            <div class="data-block data">Kryptering</div>
-                            <div class="data-block data">Tilgangskontroll</div>
-                            <div class="data-block data">Autentisering</div>
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A3</div>
+                            <div class="data-block data">A5</div>
+                            <div class="data-block data">A7</div>
                         </div>
                     </div>
                     <div class="disk">
-                        <div class="disk-header">Sikrer at</div>
+                        <div class="disk-header">Disk 2</div>
                         <div class="disk-data">
-                            <div class="data-block parity">Kun autoriserte får tilgang</div>
-                            <div class="data-block parity">Uvedkommende holdes ute</div>
-                            <div class="data-block parity">Informasjon er beskyttet</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block data">A4</div>
+                            <div class="data-block data">A6</div>
+                            <div class="data-block data">A8</div>
                         </div>
                     </div>
                 </div>
-                <p>Konfidensialitet handler om å sikre at personopplysninger bare er tilgjengelige for autoriserte personer.</p>
+                <p>Data fordeles mellom alle disker for å øke ytelsen, men uten redundans.</p>
 
-                <h4>Integritet</h4>
+                <h4>RAID 1 (speiling)</h4>
                 <div class="visual-diagram">
                     <div class="disk">
-                        <div class="disk-header">Integritet</div>
+                        <div class="disk-header">Disk 1</div>
                         <div class="disk-data">
-                            <div class="data-block data">Valideringsrutiner</div>
-                            <div class="data-block data">Sjekksum</div>
-                            <div class="data-block data">Versjonskontroll</div>
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block data">A3</div>
+                            <div class="data-block data">A4</div>
                         </div>
                     </div>
                     <div class="disk">
-                        <div class="disk-header">Sikrer at</div>
+                        <div class="disk-header">Disk 2</div>
                         <div class="disk-data">
-                            <div class="data-block parity">Data ikke endres uautorisert</div>
-                            <div class="data-block parity">Informasjonen er korrekt</div>
-                            <div class="data-block parity">Endringer kan spores</div>
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block data">A3</div>
+                            <div class="data-block data">A4</div>
                         </div>
                     </div>
                 </div>
-                <p>Integritet sikrer at opplysningene er nøyaktige og fullstendige, og at de ikke endres utilsiktet eller ulovlig.</p>
+                <p>Data dupliseres på alle disker for å sikre redundans, men med redusert nyttevolum.</p>
             </div>
 
             <div class="subtopic" data-index="4">
-                <h3><i class="fas fa-cogs"></i> Internkontroll og risikostyring</h3>
+                <h3><i class="fas fa-balance-scale"></i> Fordeler og ulemper med forskjellige RAID-nivåer</h3>
 
                 <div class="table-container">
                     <table>
                         <thead>
                             <tr>
-                                <th>Internkontrollkrav</th>
-                                <th>Formål</th>
-                                <th>Eksempler på tiltak</th>
+                                <th>RAID</th>
+                                <th>Fordeler</th>
+                                <th>Ulemper</th>
+                                <th>Min. disker</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Dokumenterte rutiner</td>
+                                <td>RAID 0</td>
                                 <td>
                                     <ul>
-                                        <li>Sikre etterlevelse av regelverk</li>
-                                        <li>Etablere beste praksis</li>
+                                        <li>Maksimal ytelse</li>
+                                        <li>100% volumutnyttelse</li>
                                     </ul>
                                 </td>
                                 <td>
                                     <ul>
-                                        <li>Personvernpolicy</li>
-                                        <li>Databehandleravtaler</li>
+                                        <li>Ingen feiltoleranse</li>
+                                        <li>Svikt i én disk fører til tap av alle data</li>
                                     </ul>
                                 </td>
+                                <td>2</td>
                             </tr>
                             <tr>
-                                <td>Risikovurdering</td>
+                                <td>RAID 1</td>
                                 <td>
                                     <ul>
-                                        <li>Identifisere trusler</li>
-                                        <li>Prioritere tiltak</li>
+                                        <li>Høy feiltoleranse</li>
+                                        <li>Økt lesehastighet</li>
                                     </ul>
                                 </td>
                                 <td>
                                     <ul>
-                                        <li>Årlig risikokartlegging</li>
-                                        <li>Kontinuerlig vurdering ved endringer</li>
+                                        <li>Kun 50% volumutnyttelse</li>
+                                        <li>Skrivehastighet økes ikke</li>
                                     </ul>
                                 </td>
+                                <td>2</td>
                             </tr>
                             <tr>
-                                <td>Avviksbehandling</td>
+                                <td>RAID 5</td>
                                 <td>
                                     <ul>
-                                        <li>Håndtere brudd</li>
-                                        <li>Lære av hendelser</li>
+                                        <li>God balanse mellom ytelse og redundans</li>
+                                        <li>Effektiv volumutnyttelse</li>
                                     </ul>
                                 </td>
                                 <td>
                                     <ul>
-                                        <li>Avvikssystem</li>
-                                        <li>Varslingsrutiner til Datatilsynet</li>
+                                        <li>Langsomme skriveoperasjoner</li>
+                                        <li>Lang gjenoppbyggingstid</li>
                                     </ul>
                                 </td>
+                                <td>3</td>
                             </tr>
                             <tr>
-                                <td>Opplæring</td>
+                                <td>RAID 10</td>
                                 <td>
                                     <ul>
-                                        <li>Øke bevissthet</li>
-                                        <li>Redusere menneskelige feil</li>
+                                        <li>Høy ytelse og pålitelighet</li>
+                                        <li>Rask gjenoppretting</li>
                                     </ul>
                                 </td>
                                 <td>
                                     <ul>
-                                        <li>Årlig personvernopplæring</li>
-                                        <li>Bevisstgjøringskampanjer</li>
+                                        <li>Kun 50% volumutnyttelse</li>
+                                        <li>Krever minimum 4 disker</li>
                                     </ul>
                                 </td>
+                                <td>4</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
-                <h4>Tilgjengelighet</h4>
+                <h4>RAID 5 (striping med distribuert paritet)</h4>
                 <div class="visual-diagram">
                     <div class="disk">
-                        <div class="disk-header">Tilgjengelighet</div>
+                        <div class="disk-header">Disk 1</div>
                         <div class="disk-data">
-                            <div class="data-block data">Backup</div>
-                            <div class="data-block data">Redundans</div>
-                            <div class="data-block data">Katastrofeplan</div>
+                            <div class="data-block data">A1</div>
+                            <div class="data-block data">A2</div>
+                            <div class="data-block parity">P3</div>
                         </div>
                     </div>
                     <div class="disk">
-                        <div class="disk-header">Sikrer at</div>
+                        <div class="disk-header">Disk 2</div>
                         <div class="disk-data">
-                            <div class="data-block parity">Data er tilgjengelig ved behov</div>
-                            <div class="data-block parity">Systemer er pålitelige</div>
-                            <div class="data-block parity">Tjenester gjenopprettes raskt</div>
+                            <div class="data-block data">A4</div>
+                            <div class="data-block parity">P5</div>
+                            <div class="data-block data">A6</div>
+                        </div>
+                    </div>
+                    <div class="disk">
+                        <div class="disk-header">Disk 3</div>
+                        <div class="disk-data">
+                            <div class="data-block parity">P7</div>
+                            <div class="data-block data">A8</div>
+                            <div class="data-block data">A9</div>
                         </div>
                     </div>
                 </div>
                 <div class="legend">
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #27ae60;"></div>
-                        <span>Tiltak</span>
+                        <span>Data</span>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #e74c3c;"></div>
-                        <span>Resultat</span>
+                        <span>Paritet</span>
                     </div>
                 </div>
 
-                <p>Virksomheter bør implementere et styringssystem for informasjonssikkerhet basert på anerkjente standarder som ISO 27001, og gjennomføre regelmessige revisjoner av sikkerhetstiltakene.</p>
+                <p>Ved valg av optimal RAID-nivå bør man vurdere krav til ytelse, feiltoleranse og budsjettbegrensninger.</p>
             </div>
 
             <div class="subtopic" data-index="5">
-                <h3><i class="fas fa-clipboard-check"></i> Datatilsynets tilsynsrolle</h3>
-                <p>Datatilsynet er en uavhengig forvaltningsmyndighet som kontrollerer at personvernlovgivningen etterleves, og kan iverksette sanksjoner ved brudd.</p>
+                <h3><i class="fas fa-tools"></i> Datagjenoppretting ved diskfeil</h3>
+                <p>En av de viktigste fordelene med RAID er muligheten til å gjenopprette data når én eller flere disker svikter (unntatt RAID 0).</p>
 
-                <h4>Datatilsynets hovedoppgaver</h4>
+                <h4>Gjenopprettingsprosessen avhenger av RAID-nivået:</h4>
 
                 <ul>
-                    <li><strong>Tilsyn</strong> - gjennomfører kontroller hos virksomheter for å påse etterlevelse av regelverket</li>
-                    <li><strong>Veiledning</strong> - gir råd og veiledning om personvern og informasjonssikkerhet
+                    <li><strong>RAID 1</strong>: enkel kopiering av data fra speildisken</li>
+                    <li><strong>RAID 5</strong>: gjenoppretting ved bruk av paritetsinformasjon
                         <div class="code-block">
-Tips: Datatilsynets veiledere er tilgjengelige på datatilsynet.no og er et godt utgangspunkt
-for å etablere gode rutiner for personvern og informasjonssikkerhet.
+Tapte data = Data fra fungerende disker XOR paritetsinformasjon
                         </div>
                     </li>
-                    <li><strong>Saksbehandling</strong> - behandler klager fra enkeltpersoner og varsler om brudd</li>
+                    <li><strong>RAID 6</strong>: kan gjenopprettes etter svikt i to disker</li>
                 </ul>
 
-                <h4>Ved tilsyn kontrollerer Datatilsynet typisk:</h4>
+                <h4>Gjenopprettingstrinn:</h4>
                 <ol>
-                    <li>Om virksomheten har på plass dokumenterte rutiner for behandling av personopplysninger</li>
-                    <li>Om det er etablert tilfredsstillende sikkerhetstiltak</li>
-                    <li>Om virksomheten har gjennomført risikovurderinger</li>
-                    <li>Om virksomheten har rutiner for å ivareta de registrertes rettigheter</li>
+                    <li>Identifisering av den defekte disken ved hjelp av RAID-kontrolleren eller programvaren</li>
+                    <li>Erstatning av den defekte disken med en ny med tilsvarende eller større kapasitet</li>
+                    <li>Initiering av gjenoppbyggingsprosessen (rebuild)                    </li>
+                    <li>Kontroll av dataintegriteten etter fullført gjenoppretting</li>
                 </ol>
 
-                <p><strong>Viktig!</strong> Brudd på personvernregelverket kan medføre overtredelsesgebyr på opptil 4% av årlig global omsetning eller 20 millioner euro, avhengig av hva som er høyest.</p>
+                <p><strong>Viktig!</strong> Under gjenopprettingsprosessen er matrisen i en degradert tilstand, og svikt i enda en disk kan føre til tap av alle data (unntatt RAID 6).</p>
 
-                <p>Selv om Datatilsynet kan ilegge gebyrer, er tilsynets hovedmål å veilede og hjelpe virksomheter med å etterleve regelverket. Virksomheter oppfordres til å søke råd og veiledning hos Datatilsynet ved usikkerhet om hvordan regelverket skal etterleves.</p>
+                <p>Til tross for påliteligheten til RAID, erstatter det ikke regelmessig sikkerhetskopiering av data. RAID beskytter mot maskinvaresvikt, men ikke mot utilsiktet sletting, virus eller logiske feil.</p>
             </div>
 
             <div class="navigation">
@@ -387,11 +419,11 @@ for å etablere gode rutiner for personvern og informasjonssikkerhet.
         function updateSubtopicVisibility() {
             const currentSubtopic = document.querySelector(`.subtopic[data-index="${currentSubtopicIndex}"]`);
             if (!currentSubtopic) {
-                if (document.querySelector('#rights.active') && currentSubtopicIndex >= 3) {
-                    switchTab('security');
+                if (document.querySelector('#filesystem.active') && currentSubtopicIndex >= 3) {
+                    switchTab('raid');
                 }
-                else if (document.querySelector('#security.active') && currentSubtopicIndex < 3) {
-                    switchTab('rights');
+                else if (document.querySelector('#raid.active') && currentSubtopicIndex < 3) {
+                    switchTab('filesystem');
                 }
             }
             subtopics.forEach(subtopic => {
@@ -408,7 +440,6 @@ for å etablere gode rutiner for personvern og informasjonssikkerhet.
             progressBar.style.width = `${progress}%`;
             progressText.textContent = `${currentSubtopicIndex + 1}/${totalSubtopics} fullført`;
         }
-
         function updateNavButtons() {
             prevBtn.forEach(btn => {
                 btn.disabled = currentSubtopicIndex === 0;
@@ -417,26 +448,24 @@ for å etablere gode rutiner for personvern og informasjonssikkerhet.
                 btn.disabled = currentSubtopicIndex === totalSubtopics - 1;
             });
         }
-
         prevBtn.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (currentSubtopicIndex > 0) {
                     currentSubtopicIndex--;
-                    if (currentSubtopicIndex === 2 && document.querySelector('#security.active')) {
-                        switchTab('rights');
+                    if (currentSubtopicIndex === 2 && document.querySelector('#raid.active')) {
+                        switchTab('filesystem');
                     }
                     updateSubtopicVisibility();
                     updateNavButtons();
                 }
             });
         });
-
         nextBtn.forEach(btn => {
             btn.addEventListener('click', () => {
                 if (currentSubtopicIndex < totalSubtopics - 1) {
                     currentSubtopicIndex++;
-                    if (currentSubtopicIndex === 3 && document.querySelector('#rights.active')) {
-                        switchTab('security');
+                    if (currentSubtopicIndex === 3 && document.querySelector('#filesystem.active')) {
+                        switchTab('raid');
                     }
                     updateSubtopicVisibility();
                     updateNavButtons();

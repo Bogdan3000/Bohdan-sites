@@ -1,81 +1,68 @@
+# Bohdan Ihnatenko – Portfolio
 
-# Praksis•Portal (HTML + CSS + Node.js)
+Dette er mitt personlige porteføljenettsted.  
+Her dokumenterer jeg skolearbeid, praksis (YFF) og deler min CV.
 
-Enkel starter for YFF-praksislogg. Inneholder:
-- HTML-sider (Forside, Praksis, Prosjekter, CV)
-- Tilgjengelig (UU) design med mørkt tema
-- Node.js/Express for å servere statiske filer + en enkel `/api/logs` som leser `data/logs.json`
-- Praksislogg lastes og tegnes automatisk på `praksis.html`
+🌍 **Live-versjon:** [portfolio.bohdan.lol](https://portfolio.bohdan.lol)
 
-## Kom i gang
-1. Installer avhengigheter:
-   ```bash
-   npm install
-   ```
-2. Kjør utviklingsserver (med auto-restart):
-   ```bash
-   npm run dev
-   ```
-   eller produksjon:
-   ```bash
-   npm start
-   ```
-3. Åpne i nettleser: http://localhost:3000
+---
 
-## Oppdater praksisbedrift
-Rediger `data/logs.json` under feltet `bedrift`:
-```json
-{
-  "bedrift": {
-    "navn": "Min Bedrift AS",
-    "adresse": "Adresse 1, 0123 Oslo",
-    "veileder": "Navn Navnesen"
-  }
-}
-```
+## ✨ Innhold
 
-## Legg til ukeslogg
-I `data/logs.json`, legg til et nytt objekt i `weeks` for hver fredag:
-```json
-{
-  "date": "2025-09-05",
-  "week": 36,
-  "hours": 6,
-  "title": "Uken i korte trekk",
-  "summary": "Kort intro til hva som skjedde",
-  "tasks": ["Oppgave 1", "Oppgave 2"],
-  "learning": "Hva lærte jeg?",
-  "other": "Møter, sosiale ting osv.",
-  "images": [
-    { "src": "/images/uken-36-1.png", "alt": "Beskrivende alt-tekst", "caption": "Kort bildetekst" }
-  ]
-}
-```
+- **Forside (Hero)**  
+  Presentasjon med navn, rolle og kort intro.
 
-**Viktig:** Legg bildene i `public/images/` og referer med `/images/filnavn.png`. Husk alt-tekst.
+- **Om meg**  
+  Kort info, ferdigheter og interesser.
 
-## Struktur
-```text
-praksis-portal/
-├─ server.js
-├─ package.json
-├─ data/
-│  └─ logs.json
-└─ public/
-   ├─ index.html
-   ├─ praksis.html
-   ├─ prosjekter.html
-   ├─ cv.html
-   ├─ styles.css
-   ├─ app.js
-   └─ images/
-```
+- **Ferdigheter**  
+  Tekniske kompetanser (HTML, CSS, JS, Python, Linux, m.m.).
 
-## UU-sjekkliste (kort)
-- Kontrast minst 4.5:1 (oppfylt i temaet)
-- Tydelig fokusramme (gullfarget)
-- Alt-tekst på alle bilder
-- Semantiske overskrifter (H1→H2→H3)
-- Tastaturnavigasjon (skip-link, fokus)
+- **CV**  
+  Utdanning og arbeidserfaring.  
+  Mulighet for å laste ned full PDF-CV.
 
-Lykke til! 🚀
+- **Praksis**  
+  Planlagt praksis:
+    - Starter **05.09.2025** i **Steinkjer kommune**.
+    - Her kommer loggoppføringer (tekst og bilder) for hver uke.
+
+- **Kontakt**  
+  Kontaktinformasjon og skjema for å sende meg en melding via [Formspree](https://formspree.io).
+
+---
+
+## ⚙️ Teknologi
+
+- **HTML5 / CSS3 / JavaScript**
+- **Bootstrap 5** (layout & responsivitet)
+- **AOS** (scroll-animasjoner)
+- **Typed.js** (animert tekst på forsiden)
+- **Formspree** (kontaktform uten backend)
+
+---
+
+## 🚀 Drift & hosting
+
+- Domenet: **bohdan.lol**
+- Underdomenet: **portfolio.bohdan.lol**
+- Deployet via Nginx (statisk hosting).
+
+---
+
+## 📌 Hvordan oppdatere praksislogg
+
+1. Gå til `index.html` → seksjonen `#praksis`.
+2. Legg til en ny `<article>` for hver uke med:
+    - Ukenummer + dato
+    - Arbeidsoppgaver
+    - Hva jeg lærte
+    - Eventuelle bilder
+3. Lagre og push endringene → oppdater siden.
+
+---
+
+## 📄 Lisens
+
+Dette prosjektet er basert på [BootstrapMade iPortfolio](https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/).  
+Modifisert og tilpasset av **Bohdan Ihnatenko** for skolebruk (YFF).

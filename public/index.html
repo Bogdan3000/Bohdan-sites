@@ -24,21 +24,12 @@
     <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
     <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
-    <!-- Main CSS + overrides -->
+    <!-- Main CSS -->
     <link href="assets/css/main.css" rel="stylesheet">
-    <style>
-        /* Мини-оверрайды под тебя */
-        :root{
-            --accent-color:#60a5fa;
-        }
-        .hero h2{letter-spacing:.3px}
-        .resume .resume-item h4{color:#0b5ed7}
-    </style>
 </head>
 
 <body class="index-page">
 
-<!-- Sidebar -->
 <header id="header" class="header dark-background d-flex flex-column">
     <i class="header-toggle d-xl-none bi bi-list" aria-label="Meny"></i>
 
@@ -54,7 +45,7 @@
         <a href="mailto:bohdan@bohdan.lol" class="email" aria-label="E-post"><i class="bi bi-envelope"></i></a>
         <a href="tel:+4790097565" class="phone" aria-label="Telefon"><i class="bi bi-telephone"></i></a>
         <a href="https://github.com/Bogdan3000" class="github" aria-label="GitHub"><i class="bi bi-github"></i></a>
-        <a href="https://bohdan.lol/" class="linkedin" aria-label="LinkedIn"><i class="bi bi-globe"></i></a>
+        <a href="https://bohdan.lol/" class="linkedin" aria-label="Nettsted"><i class="bi bi-globe"></i></a>
     </div>
 
     <nav id="navmenu" class="navmenu">
@@ -180,9 +171,7 @@
                         <h4>Butikkmedarbeider</h4>
                         <h5>2025 – nå</h5>
                         <p><em>Kiwi Moan, Levanger</em></p>
-                        <ul>
-                            <li>Kundeservice og daglige butikkoppgaver.</li>
-                        </ul>
+                        <ul><li>Kundeservice og daglige butikkoppgaver.</li></ul>
                     </div>
                     <div class="resume-item">
                         <h4>Fornøyelsesparkarbeider (skiftleder vikar)</h4>
@@ -204,71 +193,30 @@
         </div>
     </section>
 
-    <!-- Praksis (bedrift + ukeslogg) -->
+    <!-- Praksis -->
     <section id="praksis" class="section">
         <div class="container section-title" data-aos="fade-up">
             <h2>Praksis</h2>
-            <p>Info om praksisbedrift og ukentlig logg (tekst + bilder).</p>
+            <p>Planlagt praksis – logg oppdateres ukentlig når praksis starter.</p>
         </div>
 
         <div class="container" data-aos="fade-up" data-aos-delay="100">
             <div class="row gy-4">
-                <div class="col-lg-4">
+                <div class="col-lg-6">
                     <div class="p-3 border rounded">
-                        <h5>Praksisbedrift</h5>
+                        <h5>Praksisstatus</h5>
                         <ul class="list-unstyled small mb-0">
-                            <li><strong>Navn:</strong> <span id="bedrift-navn">—</span></li>
-                            <li><strong>Adresse:</strong> <span id="bedrift-adresse">—</span></li>
-                            <li><strong>Veileder:</strong> <span id="bedrift-veileder">—</span></li>
+                            <li><strong>Startdato:</strong> 05.09.2025</li>
+                            <li><strong>Bedrift:</strong> Steinkjer kommune</li>
                         </ul>
-                        <p class="text-muted mt-2">Fyll inn når bedrift er bekreftet.</p>
+                        <p class="text-muted mt-2 mb-0">Detaljer om adresse, veileder og oppgaver legges inn ved oppstart.</p>
                     </div>
                 </div>
-
-                <div class="col-lg-8">
-                    <!-- Уик 34 -->
-                    <article class="mb-4 p-3 border rounded">
-                        <div class="d-flex gap-2 flex-wrap">
-                            <span class="badge text-bg-primary">Uke 34</span>
-                            <span class="badge text-bg-secondary">22.08.2025</span>
-                            <span class="badge text-bg-dark">6 t</span>
-                        </div>
-                        <h5 class="mt-2">Oppstart i praksis</h5>
-                        <p class="mb-2">Bli-kjent, HMS, oppsett av arbeidsstasjon.</p>
-                        <ul>
-                            <li>Mål for perioden med veileder</li>
-                            <li>Installerte VS Code, Node.js</li>
-                            <li>Gjennomgang av interne rutiner</li>
-                        </ul>
-                        <p><strong>Hva jeg lærte:</strong> Git-workflow + intro til UU.</p>
-                        <p class="mb-1"><strong>Andre ting:</strong> Fredagslunsj med teamet.</p>
-                        <div class="row g-2">
-                            <div class="col-6 col-md-4"><img class="img-fluid rounded" src="assets/img/portfolio/app-3.jpg" alt="Arbeidsstasjon"></div>
-                        </div>
-                    </article>
-
-                    <!-- Уик 35 -->
-                    <article class="mb-4 p-3 border rounded">
-                        <div class="d-flex gap-2 flex-wrap">
-                            <span class="badge text-bg-primary">Uke 35</span>
-                            <span class="badge text-bg-secondary">29.08.2025</span>
-                            <span class="badge text-bg-dark">6 t</span>
-                        </div>
-                        <h5 class="mt-2">Første ukeoppgaver</h5>
-                        <p class="mb-2">Kontrast-fikser i header og innhold i CMS.</p>
-                        <ul>
-                            <li>Forbedret kontrast på knapper</li>
-                            <li>Skrev alt-tekst retningslinjer</li>
-                            <li>Publiserte nyhet i CMS</li>
-                        </ul>
-                        <p><strong>Hva jeg lærte:</strong> Design tokens &amp; tilgjengelighet i CSS.</p>
-                        <div class="row g-2">
-                            <div class="col-6 col-md-4"><img class="img-fluid rounded" src="assets/img/portfolio/product-2.jpg" alt="Kontrast-justering"></div>
-                            <div class="col-6 col-md-4"><img class="img-fluid rounded" src="assets/img/portfolio/books-2.jpg" alt="CMS publisering"></div>
-                        </div>
-                    </article>
-
-                    <!-- Под следующую пятницу добавляй аналогичный блок -->
+                <div class="col-lg-6">
+                    <div class="p-3 border rounded">
+                        <h5>Praksislogg</h5>
+                        <p class="mb-0 text-muted">Ingen logger ennå. Første logg publiseres etter første praksisdag (5. september).</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -278,31 +226,84 @@
     <section id="contact" class="contact section">
         <div class="container section-title" data-aos="fade-up">
             <h2>Kontakt</h2>
-            <p>Ta gjerne kontakt.</p>
+            <p>Ta gjerne kontakt med meg via skjemaet eller direkte på e-post / telefon.</p>
         </div>
 
         <div class="container" data-aos="fade-up" data-aos-delay="100">
             <div class="row gy-4">
+                <!-- Info-kort -->
                 <div class="col-lg-5">
                     <div class="info-wrap">
-                        <div class="info-item d-flex"><i class="bi bi-geo-alt flex-shrink-0"></i><div><h3>Adresse</h3><p>Jernbanegata 14C, 7650 Verdal</p></div></div>
-                        <div class="info-item d-flex"><i class="bi bi-telephone flex-shrink-0"></i><div><h3>Telefon</h3><p>+47 900 97 565</p></div></div>
-                        <div class="info-item d-flex"><i class="bi bi-envelope flex-shrink-0"></i><div><h3>E-post</h3><p>bohdan@bohdan.lol</p></div></div>
+                        <div class="info-item d-flex">
+                            <i class="bi bi-geo-alt flex-shrink-0"></i>
+                            <div>
+                                <h3>Adresse</h3>
+                                <p>Jernbanegata 14C, 7650 Verdal</p>
+                            </div>
+                        </div>
+
+                        <div class="info-item d-flex">
+                            <i class="bi bi-telephone flex-shrink-0"></i>
+                            <div>
+                                <h3>Telefon</h3>
+                                <p><a href="tel:+4790097565">+47 900 97 565</a></p>
+                            </div>
+                        </div>
+
+                        <div class="info-item d-flex">
+                            <i class="bi bi-envelope flex-shrink-0"></i>
+                            <div>
+                                <h3>E-post</h3>
+                                <p><a href="mailto:bohdan@bohdan.lol">bohdan@bohdan.lol</a></p>
+                            </div>
+                        </div>
+
+                        <div class="info-item d-flex">
+                            <i class="bi bi-globe flex-shrink-0"></i>
+                            <div>
+                                <h3>Nettside</h3>
+                                <p><a href="https://bohdan.lol/" target="_blank" rel="noopener">bohdan.lol</a></p>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Formspree skjema -->
                 <div class="col-lg-7">
-                    <!-- В бесплатном шаблоне form отправка не работает — оставим mailto -->
-                    <a class="btn btn-primary" href="mailto:bohdan@bohdan.lol?subject=Kontakt%20fra%20nettside">Send e-post</a>
+                    <form id="contact-form" class="alt-email-form">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Navn</label>
+                            <input id="name" type="text" name="name" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Din e-post</label>
+                            <input id="email" type="email" name="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">Emne</label>
+                            <input id="subject" type="text" name="subject" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label for="message" class="form-label">Melding</label>
+                            <textarea id="message" name="message" class="form-control" rows="6" required></textarea>
+                        </div>
+
+                        <div id="form-messages" class="mt-2"></div>
+
+                        <button type="submit" class="btn btn-primary">Send melding</button>
+                    </form>
+
                 </div>
             </div>
         </div>
     </section>
 
+
 </main>
 
 <footer id="footer" class="footer position-relative light-background">
     <div class="container">
-        <div class="copyright text-center ">
+        <div class="copyright text-center">
             <p>© <span>Copyright</span> <strong class="px-1 sitename">Bohdan Ihnatenko</strong> <span>All Rights Reserved</span></p>
         </div>
         <div class="credits">
@@ -311,7 +312,6 @@
     </div>
 </footer>
 
-<!-- Preloader & ScrollTop -->
 <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 <div id="preloader"></div>
 
@@ -326,7 +326,7 @@
 <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
 <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 
-<!-- Main JS (без изменений по логике шаблона) -->
+<!-- Main JS -->
 <script src="assets/js/main.js"></script>
 </body>
 </html>

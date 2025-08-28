@@ -1,229 +1,146 @@
-/**
-* Template Name: iPortfolio
-* Template URL: https://bootstrapmade.com/iportfolio-bootstrap-portfolio-websites-template/
-* Updated: Jun 29 2024 with Bootstrap v5.3.3
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
+/* =========================
+   MAIN.JS — CLEANED (MIN)
+   Keeps: sidebar toggle, active nav, typed.js (if present), AOS init,
+          scroll-top, preloader, simple form UX.
+   Removes: isotope, glightbox, swiper, purecounter, portfolio filters.
+   ========================= */
 
-(function() {
-  "use strict";
+(function () {
+    "use strict";
 
-  /**
-   * Header toggle
-   */
-  const headerToggleBtn = document.querySelector('.header-toggle');
+    const select = (el, all = false) => all ? [...document.querySelectorAll(el)] : document.querySelector(el);
+    const on = (type, el, listener, all = false) => {
+        let s = select(el, all);
+        if (!s) return;
+        if (all) s.forEach(e => e.addEventListener(type, listener));
+        else s.addEventListener(type, listener);
+    };
+    const onscroll = (el, listener) => el.addEventListener('scroll', listener);
 
-  function headerToggle() {
-    document.querySelector('#header').classList.toggle('header-show');
-    headerToggleBtn.classList.toggle('bi-list');
-    headerToggleBtn.classList.toggle('bi-x');
-  }
-  headerToggleBtn.addEventListener('click', headerToggle);
+    /* Sidebar toggle (mobile) */
+    const header = select('#header');
+    const toggle = select('.header-toggle');
+    if (toggle && header) {
+        on('click', '.header-toggle', () => header.classList.toggle('show'));
+        on('click', '#navmenu a', () => header.classList.remove('show'), true);
+    }
 
-  /**
-   * Hide mobile nav on same-page/hash links
-   */
-  document.querySelectorAll('#navmenu a').forEach(navmenu => {
-    navmenu.addEventListener('click', () => {
-      if (document.querySelector('.header-show')) {
-        headerToggle();
-      }
+    /* Active nav on scroll */
+    const navLinks = select('#navmenu a', true);
+    const sections = navLinks.map(a => {
+        const id = a.getAttribute('href') || '';
+        if (id.startsWith('#')) return select(id);
+        return null;
     });
 
-  });
+    const activateNav = () => {
+        const pos = window.scrollY + 200;
+        navLinks.forEach((a, i) => {
+            const sec = sections[i];
+            if (!sec) return;
+            if (pos >= sec.offsetTop && pos <= (sec.offsetTop + sec.offsetHeight)) a.classList.add('active');
+            else a.classList.remove('active');
+        });
+    };
+    window.addEventListener('load', activateNav);
+    onscroll(document, activateNav);
 
-  /**
-   * Toggle mobile nav dropdowns
-   */
-  document.querySelectorAll('.navmenu .toggle-dropdown').forEach(navmenu => {
-    navmenu.addEventListener('click', function(e) {
-      e.preventDefault();
-      this.parentNode.classList.toggle('active');
-      this.parentNode.nextElementSibling.classList.toggle('dropdown-active');
-      e.stopImmediatePropagation();
-    });
-  });
+    /* Typed.js (hero) */
+    const typedSpan = select('.typed');
+    if (typedSpan && window.Typed) {
+        const items = typedSpan.getAttribute('data-typed-items');
+        const strings = items ? items.split(',').map(s => s.trim()) : [];
+        new Typed('.typed', {
+            strings,
+            typeSpeed: 70,
+            backSpeed: 40,
+            backDelay: 1200,
+            loop: true
+        });
+    }
 
-  /**
-   * Preloader
-   */
-  const preloader = document.querySelector('#preloader');
-  if (preloader) {
+    /* AOS init (scroll animations) */
     window.addEventListener('load', () => {
-      preloader.remove();
-    });
-  }
-
-  /**
-   * Scroll top button
-   */
-  let scrollTop = document.querySelector('.scroll-top');
-
-  function toggleScrollTop() {
-    if (scrollTop) {
-      window.scrollY > 100 ? scrollTop.classList.add('active') : scrollTop.classList.remove('active');
-    }
-  }
-  scrollTop.addEventListener('click', (e) => {
-    e.preventDefault();
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  });
-
-  window.addEventListener('load', toggleScrollTop);
-  document.addEventListener('scroll', toggleScrollTop);
-
-  /**
-   * Animation on scroll function and init
-   */
-  function aosInit() {
-    AOS.init({
-      duration: 600,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
-    });
-  }
-  window.addEventListener('load', aosInit);
-
-  /**
-   * Init typed.js
-   */
-  const selectTyped = document.querySelector('.typed');
-  if (selectTyped) {
-    let typed_strings = selectTyped.getAttribute('data-typed-items');
-    typed_strings = typed_strings.split(',');
-    new Typed('.typed', {
-      strings: typed_strings,
-      loop: true,
-      typeSpeed: 100,
-      backSpeed: 50,
-      backDelay: 500
-    });
-  }
-
-  /**
-   * Initiate Pure Counter
-   */
-  new PureCounter();
-
-  /**
-   * Animate the skills items on reveal
-   */
-  let skillsAnimation = document.querySelectorAll('.skills-animation');
-  skillsAnimation.forEach((item) => {
-    new Waypoint({
-      element: item,
-      offset: '80%',
-      handler: function(direction) {
-        let progress = item.querySelectorAll('.progress .progress-bar');
-        progress.forEach(el => {
-          el.style.width = el.getAttribute('aria-valuenow') + '%';
-        });
-      }
-    });
-  });
-
-  /**
-   * Initiate glightbox
-   */
-  const glightbox = GLightbox({
-    selector: '.glightbox'
-  });
-
-  /**
-   * Init isotope layout and filters
-   */
-  document.querySelectorAll('.isotope-layout').forEach(function(isotopeItem) {
-    let layout = isotopeItem.getAttribute('data-layout') ?? 'masonry';
-    let filter = isotopeItem.getAttribute('data-default-filter') ?? '*';
-    let sort = isotopeItem.getAttribute('data-sort') ?? 'original-order';
-
-    let initIsotope;
-    imagesLoaded(isotopeItem.querySelector('.isotope-container'), function() {
-      initIsotope = new Isotope(isotopeItem.querySelector('.isotope-container'), {
-        itemSelector: '.isotope-item',
-        layoutMode: layout,
-        filter: filter,
-        sortBy: sort
-      });
+        if (window.AOS) AOS.init({ duration: 600, easing: 'ease-out', once: true, offset: 80 });
     });
 
-    isotopeItem.querySelectorAll('.isotope-filters li').forEach(function(filters) {
-      filters.addEventListener('click', function() {
-        isotopeItem.querySelector('.isotope-filters .filter-active').classList.remove('filter-active');
-        this.classList.add('filter-active');
-        initIsotope.arrange({
-          filter: this.getAttribute('data-filter')
-        });
-        if (typeof aosInit === 'function') {
-          aosInit();
+    /* Scroll-top button */
+    const scrollTop = select('.scroll-top');
+    const toggleScrollTop = () => {
+        if (!scrollTop) return;
+        const show = window.scrollY > 400;
+        scrollTop.style.display = show ? 'flex' : 'none';
+    };
+    window.addEventListener('load', toggleScrollTop);
+    onscroll(document, toggleScrollTop);
+
+    /* Smooth scroll for hash links (basic) */
+    on('click', 'a[href^="#"]', function (e) {
+        const id = this.getAttribute('href');
+        const t = select(id);
+        if (t) {
+            e.preventDefault();
+            window.scrollTo({ top: t.offsetTop - 10, behavior: 'smooth' });
         }
-      }, false);
-    });
+    }, true);
 
-  });
-
-  /**
-   * Init swiper sliders
-   */
-  function initSwiper() {
-    document.querySelectorAll(".init-swiper").forEach(function(swiperElement) {
-      let config = JSON.parse(
-        swiperElement.querySelector(".swiper-config").innerHTML.trim()
-      );
-
-      if (swiperElement.classList.contains("swiper-tab")) {
-        initSwiperWithCustomPagination(swiperElement, config);
-      } else {
-        new Swiper(swiperElement, config);
-      }
-    });
-  }
-
-  window.addEventListener("load", initSwiper);
-
-  /**
-   * Correct scrolling position upon page load for URLs containing hash links.
-   */
-  window.addEventListener('load', function(e) {
-    if (window.location.hash) {
-      if (document.querySelector(window.location.hash)) {
-        setTimeout(() => {
-          let section = document.querySelector(window.location.hash);
-          let scrollMarginTop = getComputedStyle(section).scrollMarginTop;
-          window.scrollTo({
-            top: section.offsetTop - parseInt(scrollMarginTop),
-            behavior: 'smooth'
-          });
-        }, 100);
-      }
+    /* Preloader */
+    const preloader = select('#preloader');
+    if (preloader) {
+        window.addEventListener('load', () => {
+            setTimeout(() => preloader.classList.add('hide'), 150);
+            setTimeout(() => preloader.remove(), 450);
+        });
     }
-  });
 
-  /**
-   * Navmenu Scrollspy
-   */
-  let navmenulinks = document.querySelectorAll('.navmenu a');
+    /* Contact form UX (non-AJAX; shows loading/sent briefly) */
+    const form = select('.php-email-form');
+    if (form) {
+        form.addEventListener('submit', function () {
+            const loading = select('.php-email-form .loading');
+            const sent = select('.php-email-form .sent-message');
+            const err = select('.php-email-form .error-message');
+            if (loading) loading.style.display = 'block';
+            if (err) err.style.display = 'none';
+            // Let server (contact.php) process; on navigation back, message will be gone anyway.
+            setTimeout(() => {
+                if (loading) loading.style.display = 'none';
+                if (sent) sent.style.display = 'block';
+                setTimeout(() => { if (sent) sent.style.display = 'none'; }, 2500);
+            }, 800);
+        });
+    }
 
-  function navmenuScrollspy() {
-    navmenulinks.forEach(navmenulink => {
-      if (!navmenulink.hash) return;
-      let section = document.querySelector(navmenulink.hash);
-      if (!section) return;
-      let position = window.scrollY + 200;
-      if (position >= section.offsetTop && position <= (section.offsetTop + section.offsetHeight)) {
-        document.querySelectorAll('.navmenu a.active').forEach(link => link.classList.remove('active'));
-        navmenulink.classList.add('active');
-      } else {
-        navmenulink.classList.remove('active');
-      }
-    })
-  }
-  window.addEventListener('load', navmenuScrollspy);
-  document.addEventListener('scroll', navmenuScrollspy);
+    document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("contact-form");
+        const messages = document.getElementById("form-messages");
+
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
+
+            messages.textContent = "Sender...";
+            messages.style.color = "#cbd5e1";
+
+            try {
+                const response = await fetch("https://formspree.io/f/xzzazlep", {
+                    method: "POST",
+                    body: new FormData(form),
+                    headers: { Accept: "application/json" }
+                });
+
+                if (response.ok) {
+                    messages.textContent = "Meldingen din er sendt. Takk!";
+                    messages.style.color = "#86efac";
+                    form.reset();
+                } else {
+                    messages.textContent = "Noe gikk galt. Prøv igjen senere.";
+                    messages.style.color = "#fca5a5";
+                }
+            } catch (error) {
+                messages.textContent = "Feil ved sending. Prøv igjen.";
+                messages.style.color = "#fca5a5";
+            }
+        });
+    });
 
 })();

@@ -143,4 +143,26 @@
         });
     });
 
+    /* Skills progress animation */
+    const skillsSection = select('#skills');
+    if (skillsSection) {
+        const bars = select('#skills .progress-bar', true) || [];
+        const setWidths = () => {
+            bars.forEach((b) => {
+                const v = parseInt(b.getAttribute('aria-valuenow') || '0', 10);
+                b.style.width = (isNaN(v) ? 0 : v) + '%';
+            });
+        };
+        // Запуск при появлении секции на экране
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) {
+                    setWidths();
+                    io.disconnect(); // Один раз достаточно
+                }
+            });
+        }, { threshold: 0.2 });
+        io.observe(skillsSection);
+    }
+
 })();

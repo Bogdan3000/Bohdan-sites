@@ -10,7 +10,9 @@ import bcrypt from 'bcryptjs';
 import { fileURLToPath } from 'url';
 
 dotenv.config();
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Bogdan4ik3000';
+const MAX_FILE_SIZE_MB = parseInt(process.env.MAX_FILE_SIZE_MB || '10240', 10); // 10 GB by default
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Bogdan3000';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -71,7 +73,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
     storage,
-    limits: { fileSize: 10 * 1024 * 1024 * 1024 }, // 5 GB per file
+    limits: { files: 1 },
 });
 
 // Serve the SPA
@@ -190,8 +192,7 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 const server = app.listen(PORT, () => {
     console.log(`FileShare running on http://localhost:${PORT}`);
 });
-// Disable request timeout: allow very long uploads
-server.requestTimeout = 0; // no limit
-server.headersTimeout = 120 * 1000; // keep reasonable header timeout (2 min)
-server.keepAliveTimeout = 75 * 1000; // optional: align with proxies
+server.requestTimeout = 0;
+server.headersTimeout = 120 * 1000;
+server.keepAliveTimeout = 75 * 1000;
 server.maxRequestsPerSocket = 0;

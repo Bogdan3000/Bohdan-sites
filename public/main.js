@@ -177,23 +177,38 @@ async function doUpload(){
   }
 }
 
-function xhrUpload(url, formData, onProgress) {
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', url);
-    xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded, e.total); };
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try { resolve(JSON.parse(xhr.responseText)); } catch { resolve({}); }
-      } else {
-        try { reject(new Error(JSON.parse(xhr.responseText).error || 'Upload error')); } catch { reject(new Error('Upload error')); }
-      }
-    };
-    xhr.onerror = () => reject(new Error('Network error'));
-    xhr.send(formData);
-  });
+let ACTIVE_UPLOADS = 0;
+function syncBeforeUnload() {
+    if (ACTIVE_UPLOADS > 0) {
+        window.onbeforeunload = (e) => { e.preventDefault(); e.returnValue = ''; };
+    } else {
+        window.onbeforeunload = null;
+    }
 }
 
+function xhrUpload(url, formData, onProgress) {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', url);
+        xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress(e.loaded, e.total); };
+
+        // ++ активная загрузка
+        ACTIVE_UPLOADS++; syncBeforeUnload();
+
+        // loadend срабатывает ВСЕГДА: успех/ошибка/abort
+        xhr.addEventListener('loadend', () => { ACTIVE_UPLOADS = Math.max(0, ACTIVE_UPLOADS - 1); syncBeforeUnload(); });
+
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try { resolve(JSON.parse(xhr.responseText)); } catch { resolve({}); }
+            } else {
+                try { reject(new Error(JSON.parse(xhr.responseText).error || 'Upload error')); } catch { reject(new Error('Upload error')); }
+            }
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send(formData);
+    });
+}
 // Buttons
 uploadBtn.addEventListener('click', async () => {
   if (!fileInput.files.length) {

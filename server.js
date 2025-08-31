@@ -85,6 +85,11 @@ const PORT = process.env.PORT || 3000;
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const DATA_DIR = path.join(__dirname, 'data');
 const MANIFEST_PATH = path.join(DATA_DIR, 'manifest.json');
+for (const f of fs.readdirSync(UPLOAD_DIR)) {
+    if (f.endsWith('.part')) {
+        try { fs.unlinkSync(path.join(UPLOAD_DIR, f)); } catch {}
+    }
+}
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 if (!fs.existsSync(MANIFEST_PATH)) fs.writeFileSync(MANIFEST_PATH, JSON.stringify({ files: [] }, null, 2));
@@ -92,12 +97,19 @@ if (!fs.existsSync(MANIFEST_PATH)) fs.writeFileSync(MANIFEST_PATH, JSON.stringif
 // Multer storage
 const storage = multer.diskStorage({
     destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-    filename: (_req, file, cb) => {
+    filename: (req, file, cb) => {
         const id = nanoid(12);
         const ext = path.extname(file.originalname);
-        cb(null, `${id}${ext}`);
+        const tempName = `${id}${ext}.part`;
+        // сохраним, чтобы иметь доступ в роуте и в обработчике обрыва
+        req._uploadId = id;
+        req._uploadExt = ext;
+        req._tempName = tempName;
+        req._tempPath = path.join(UPLOAD_DIR, tempName);
+        cb(null, tempName);
     }
 });
+
 const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
 const upload = multer({
     storage,
@@ -123,12 +135,34 @@ function saveManifest(manifest) {
 
 // Upload endpoint (supports optional delete password)
 app.post('/api/upload', upload.single('file'), async (req, res) => {
+    // Если клиент закроется ПРЯМО сейчас — подчистим .part
+    const cleanupOnAbort = () => { try { if (req._tempPath) fs.unlinkSync(req._tempPath); } catch {} };
+    req.on('aborted', cleanupOnAbort);
+    req.on('close', () => {
+        // на всякий случай, если закрытие без aborted
+        if (!res.headersSent) cleanupOnAbort();
+    });
+
     try {
         if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-        const { originalname, mimetype, size, filename } = req.file;
-        const id = path.parse(filename).name;
-        const now = new Date().toISOString();
 
+        const { originalname, mimetype, size } = req.file;
+        const id = req._uploadId || path.parse(req.file.filename).name;
+        const ext = req._uploadExt || path.extname(originalname);
+        const finalName = `${id}${ext}`;
+        const finalPath = path.join(UPLOAD_DIR, finalName);
+
+        // 1) Переименовываем *.part -> финальное имя
+        try {
+            fs.renameSync(req._tempPath || req.file.path, finalPath);
+        } catch (e) {
+            // Если rename не удался — удаляем хвост и падаем
+            try { fs.unlinkSync(req._tempPath || req.file.path); } catch {}
+            throw e;
+        }
+
+        // 2) Теперь безопасно пишем в манифест
+        const now = new Date().toISOString();
         let deleteHash = null;
         const { deletePassword } = req.body || {};
         if (typeof deletePassword === 'string' && deletePassword.length > 0) {
@@ -138,15 +172,16 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         const manifest = loadManifest();
         manifest.files.push({
             id,
-            filename,
+            filename: finalName,
             originalname,
             mimetype,
             size,
             uploadedAt: now,
             downloads: 0,
-            deleteHash, // may be null
+            deleteHash,
         });
         saveManifest(manifest);
+
         res.json({ ok: true, id });
     } catch (err) {
         res.status(500).json({ error: err.message || 'Upload failed' });

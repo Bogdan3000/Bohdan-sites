@@ -127,8 +127,32 @@ async function doUpload(){
     uploadsList.appendChild(el);
     items.push({ file: f, bar: el.querySelector('.progress-bar'), pct: el.querySelector('.pct') });
   }
+    // Порог видимых строк прогресса без скролла
+    const VISIBLE_MAX = 8;
 
-  const pwd = deletePassword.value.trim();
+    if (items.length > VISIBLE_MAX) {
+        // Скрываем всё, что выше порога
+        for (let i = VISIBLE_MAX; i < uploadsList.children.length; i++) {
+            const row = uploadsList.children[i];
+            if (row.classList.contains('upload-item')) {
+                row.classList.add('is-hidden');
+            }
+        }
+        // Кнопка "Показать ещё"
+        const btnMore = document.createElement('button');
+        btnMore.type = 'button';
+        btnMore.className = 'btn btn-outline-secondary btn-sm w-100 mt-1';
+        btnMore.id = 'btnShowMore';
+        btnMore.textContent = `Показать ещё ${items.length - VISIBLE_MAX}`;
+        uploadsList.appendChild(btnMore);
+
+        btnMore.addEventListener('click', () => {
+            uploadsList.querySelectorAll('.upload-item.is-hidden').forEach(el => el.classList.remove('is-hidden'));
+            btnMore.remove();
+        });
+    }
+
+    const pwd = deletePassword.value.trim();
   const promises = items.map(({file, bar, pct}) => {
     const fd = new FormData();
     fd.append('file', file);

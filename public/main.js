@@ -5,7 +5,6 @@ const dropArea = document.getElementById('dropArea');
 const uploadBtn = document.getElementById('uploadBtn');
 const statusEl = document.getElementById('status');
 const progressRow = document.getElementById('progressRow');
-const progressBar = document.getElementById('progressBar');
 const uploadsList = document.getElementById('uploadsList');
 const preUploadRow = document.getElementById('preUploadRow');
 const pwdRow = document.getElementById('pwdRow');
@@ -70,6 +69,18 @@ dropArea.addEventListener('drop', (e) => {
 });
 fileInput.addEventListener('change', onFilePicked);
 
+// Prevent browser from navigating when dropping files outside the drop area
+function isFileDrag(e){
+  return e && e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+}
+['dragover','drop'].forEach(evt => {
+  window.addEventListener(evt, (e) => {
+    if (isFileDrag(e)) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+});
+
 function onFilePicked(){
   const n = fileInput.files.length;
   if (n) {
@@ -110,7 +121,7 @@ async function doUpload(){
     el.innerHTML = `
       <div class="name">${esc(f.name)}</div>
       <div class="meta">${(f.size?fmtBytes(f.size):'')} ${f.type?(' • ' + esc(f.type)) : ''}</div>
-      <div class="progress w-100"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0%"></div></div>
+      <div class="progress w-100"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0"></div></div>
       <div class="small text-secondary text-end"><span class="pct">0%</span></div>
     `;
     uploadsList.appendChild(el);
@@ -176,10 +187,6 @@ function startPolling(){
   if (polling) clearInterval(polling);
   polling = setInterval(loadFiles, 20000);
 }
-function stopPolling(){
-  if (polling) clearInterval(polling);
-}
-
 // Load & render
 let firstLoad = true;
 async function loadFiles(){

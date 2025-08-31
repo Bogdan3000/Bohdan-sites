@@ -29,6 +29,7 @@ const appToastEl = document.getElementById('appToast');
 const appToast = new bootstrap.Toast(appToastEl);
 const toastBody = document.getElementById('toastBody');
 
+const leftCol = document.querySelector('.col-12.col-lg-4.sticky-col');
 let toDelete = null;
 
 // Data cache
@@ -279,30 +280,31 @@ function render(){
 
     const actions = document.createElement('div');
     actions.className = 'file-actions';
-    actions.innerHTML = `
-      <a class="btn btn-sm btn-outline-primary" href="${f.downloadUrl}" target="_blank" rel="noopener">
-        <i class="bi bi-download me-1"></i>Download
-      </a>
-      <a class="btn btn-sm btn-outline-secondary" href="${f.url}" target="_blank" rel="noopener">
-        <i class="bi bi-eye me-1"></i>Open
-      </a>
-      <button class="btn btn-sm btn-outline-success btn-copy">
-        <i class="bi bi-link-45deg me-1"></i>Copy link
-      </button>
-      <button class="btn btn-sm btn-danger btn-delete">
-        <i class="bi bi-trash3 me-1"></i>Delete
-      </button>
-    `;
+      actions.innerHTML = `
+  <a class="btn btn-sm btn-outline-primary" href="${f.downloadUrl}" target="_blank" rel="noopener">
+    <i class="bi bi-download me-1"></i>Download
+  </a>
+  <a class="btn btn-sm btn-outline-secondary" href="/f/${f.id}">
+    <i class="bi bi-eye me-1"></i>Open
+  </a>
+  <button class="btn btn-sm btn-outline-success btn-copy">
+    <i class="bi bi-link-45deg me-1"></i>Copy link
+  </button>
+  <button class="btn btn-sm btn-danger btn-delete">
+    <i class="bi bi-trash3 me-1"></i>Delete
+  </button>
+`;
     card.appendChild(actions);
 
-    actions.querySelector('.btn-copy').addEventListener('click', async () => {
-      try {
-        await navigator.clipboard.writeText(new URL(f.url, location.origin).toString());
-        toast('Link copied');
-      } catch {
-        toast('Failed to copy link');
-      }
-    });
+      actions.querySelector('.btn-copy').addEventListener('click', async () => {
+          try {
+              const shareUrl = new URL(`/f/${f.id}`, location.origin).toString();
+              await navigator.clipboard.writeText(shareUrl);
+              toast('Link copied');
+          } catch {
+              toast('Failed to copy link');
+          }
+      });
 
     actions.querySelector('.btn-delete').addEventListener('click', async () => {
       toDelete = { id: f.id, name: f.originalname, requiresPassword: f.requiresPassword };
@@ -388,6 +390,111 @@ function toast(text){
   appToast.show();
 }
 
-// Init
-loadFiles();
-startPolling();
+// ===== Router & Viewer =====
+const viewIdFromPath = () => {
+    const m = location.pathname.match(/^\/(?:f|file|view)\/([A-Za-z0-9_-]+)/);
+    return m ? m[1] : null;
+};
+
+async function fetchFileById(id) {
+    const r = await fetch(`/api/files/${id}`);
+    if (!r.ok) throw new Error('Not found');
+    const js = await r.json();
+    return js.file;
+}
+
+// Более «полный» превью для страницы просмотра (PDF iframe и т.п.)
+function renderPreviewFull(f) {
+    if (f.mimetype?.startsWith('image/')) {
+        return `<img src="${f.url}" alt="${esc(f.originalname)}">`;
+    } else if (f.mimetype?.startsWith('video/')) {
+        return `<video src="${f.url}" preload="metadata" controls></video>`;
+    } else if (f.mimetype?.startsWith('audio/')) {
+        return `<audio src="${f.url}" controls></audio>`;
+    } else if (f.mimetype?.includes('pdf')) {
+        return `<iframe class="pdf-frame" src="${f.url}#view=FitH"></iframe>`;
+    } else {
+        return `<div class="icon text-secondary"><i class="bi bi-file-earmark-text"></i></div>`;
+    }
+}
+
+function renderViewer(file) {
+    // спрятать пустые/лишние зоны
+    hide(emptyState);
+    filesGrid.innerHTML = '';
+
+    const card = document.createElement('div');
+    card.className = 'file-card fade-in';
+
+    const prev = document.createElement('div');
+    prev.className = 'preview';
+    prev.innerHTML = renderPreviewFull(file);
+    card.appendChild(prev);
+
+    const body = document.createElement('div');
+    body.className = 'body';
+    body.innerHTML = `
+    <div class="file-name" title="${esc(file.originalname)}">${esc(file.originalname)}</div>
+    <div class="file-meta">
+      <span>${fmtBytes(file.size)}</span>
+      <span>•</span>
+      <span>${new Date(file.uploadedAt).toLocaleString('en-GB')}</span>
+      <span>•</span>
+      <span><i class="bi bi-download me-1"></i>${file.downloads || 0}</span>
+      ${file.requiresPassword
+        ? '<span class="badge rounded-pill text-bg-secondary ms-1"><i class="bi bi-shield-lock me-1"></i>protected</span>'
+        : '<span class="badge rounded-pill badge-lock ms-1"><i class="bi bi-unlock me-1"></i>open delete</span>'}
+    </div>
+  `;
+    card.appendChild(body);
+
+    const actions = document.createElement('div');
+    actions.className = 'file-actions';
+    const viewerUrl = new URL(location.href).toString();
+    actions.innerHTML = `
+    <a class="btn btn-sm btn-outline-primary" href="${file.downloadUrl}">
+      <i class="bi bi-download me-1"></i>Download
+    </a>
+    <a class="btn btn-sm btn-outline-secondary" href="${file.url}" target="_blank" rel="noopener">
+      <i class="bi bi-box-arrow-up-right me-1"></i>Direct file
+    </a>
+    <button class="btn btn-sm btn-outline-success" id="btnCopyViewer">
+      <i class="bi bi-link-45deg me-1"></i>Copy page link
+    </button>
+    <a class="btn btn-sm btn-outline-light" href="/" id="btnBack">
+      <i class="bi bi-arrow-left me-1"></i>All files
+    </a>
+  `;
+    card.appendChild(actions);
+
+    filesGrid.appendChild(card);
+
+    document.getElementById('btnCopyViewer')?.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(viewerUrl); toast('Link copied'); }
+        catch { toast('Failed to copy link'); }
+    });
+}
+
+async function route() {
+    const id = viewIdFromPath();
+    if (id) {
+        // режим просмотра одного файла
+        leftCol?.classList.add('d-none');
+        if (polling) clearInterval(polling);
+        try {
+            const file = await fetchFileById(id);
+            renderViewer(file);
+        } catch {
+            filesGrid.innerHTML = `<div class="text-center text-secondary py-5">File not found</div>`;
+        }
+    } else {
+        // обычный список
+        leftCol?.classList.remove('d-none');
+        await loadFiles();
+        startPolling();
+    }
+}
+
+window.addEventListener('popstate', route);
+
+route();

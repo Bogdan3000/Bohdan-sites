@@ -220,33 +220,26 @@ app.get('/d/:id', (req, res) => {
 // Delete by id with password logic:
 // - если пароля нет в манифесте -> можно удалять без пароля
 // - если пароль есть -> нужен правильный пароль ИЛИ админ-пароль
-app.delete('/api/files/:id', async (req, res) => {
+app.get('/api/files/:id', (req, res) => {
     const { id } = req.params;
-    const { password } = req.body || {};
     const manifest = loadManifest();
-    const idx = manifest.files.findIndex(f => f.id === id);
-    if (idx === -1) return res.status(404).json({ error: 'Not found' });
-    const item = manifest.files[idx];
-    const isAdmin = typeof password === 'string' && password === ADMIN_PASSWORD;
+    const item = manifest.files.find(f => f.id === id);
+    if (!item) return res.status(404).json({ error: 'Not found' });
 
-    if (item.deleteHash) {
-        // password was set at upload time -> require correct password or admin
-        if (!isAdmin) {
-            if (typeof password !== 'string' || password.length === 0) {
-                return res.status(400).json({ error: 'Password required.' });
-            }
-            const ok = await bcrypt.compare(password, item.deleteHash);
-            if (!ok) return res.status(401).json({ error: 'Invalid password.' });
+    const { deleteHash, ...rest } = item;
+    return res.json({
+        file: {
+            ...rest,
+            requiresPassword: !!deleteHash,
+            url: `/uploads/${rest.filename}`,
+            downloadUrl: `/d/${rest.id}`,
         }
-    } else {
-        // no password set -> allow deletion without password
-    }
+    });
+});
 
-    const filepath = path.join(UPLOAD_DIR, item.filename);
-    try { if (fs.existsSync(filepath)) fs.unlinkSync(filepath); } catch {}
-    manifest.files.splice(idx, 1);
-    saveManifest(manifest);
-    res.json({ ok: true });
+// SPA routes for file viewer
+app.get(['/f/:id','/file/:id','/view/:id'], (_req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Health check

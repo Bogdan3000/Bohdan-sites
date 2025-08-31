@@ -27,7 +27,7 @@ const __dirname = path.dirname(__filename);
 // - GIT_CMD: git executable command/path (default: 'git')
 // - DEPLOY_INSTALL: if 'true', run 'npm ci --omit=dev' after pull (default: false)
 const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
-const DEPLOY_BRANCH = process.env.DEPLOY_BRANCH || 'main';
+const DEPLOY_BRANCH = process.env.DEPLOY_BRANCH || 'FileShare';
 const REPO_DIR = process.env.REPO_DIR || __dirname;
 const PM2_PROCESS = process.env.PM2_PROCESS || process.env.pm_id;
 const PM2_CMD = process.env.PM2_CMD || 'pm2';

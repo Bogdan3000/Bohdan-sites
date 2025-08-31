@@ -71,7 +71,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
     storage,
-    limits: { files: 1 },
+    limits: { fileSize: 10 * 1024 * 1024 * 1024 }, // 5 GB per file
 });
 
 // Serve the SPA
@@ -187,6 +187,11 @@ app.delete('/api/files/:id', async (req, res) => {
 // Health check
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`FileShare running on http://localhost:${PORT}`);
 });
+// Disable request timeout: allow very long uploads
+server.requestTimeout = 0; // no limit
+server.headersTimeout = 120 * 1000; // keep reasonable header timeout (2 min)
+server.keepAliveTimeout = 75 * 1000; // optional: align with proxies
+server.maxRequestsPerSocket = 0;

@@ -29,7 +29,10 @@ const appToastEl = document.getElementById('appToast');
 const appToast = new bootstrap.Toast(appToastEl);
 const toastBody = document.getElementById('toastBody');
 
-const leftCol = document.querySelector('.col-12.col-lg-4.sticky-col');
+const leftCol = document.getElementById('leftCol');
+const filesCol = document.getElementById('filesCol');
+const filesHeader = document.getElementById('filesHeader');
+
 let toDelete = null;
 
 // Data cache
@@ -424,7 +427,7 @@ function renderViewer(file) {
     filesGrid.innerHTML = '';
 
     const card = document.createElement('div');
-    card.className = 'file-card fade-in';
+    card.className = 'file-card fade-in viewer';
 
     const prev = document.createElement('div');
     prev.className = 'preview';
@@ -478,8 +481,15 @@ function renderViewer(file) {
 async function route() {
     const id = viewIdFromPath();
     if (id) {
-        // режим просмотра одного файла
+        // viewer mode
+        document.body.classList.add('viewer-mode');        // +++
         leftCol?.classList.add('d-none');
+        filesHeader?.classList.add('d-none');
+        filesCol?.classList.remove('col-lg-8');
+        filesCol?.classList.add('col-lg-12');
+
+        filesGrid.classList.add('viewer-center');          // +++
+
         if (polling) clearInterval(polling);
         try {
             const file = await fetchFileById(id);
@@ -488,8 +498,15 @@ async function route() {
             filesGrid.innerHTML = `<div class="text-center text-secondary py-5">File not found</div>`;
         }
     } else {
-        // обычный список
+        // list mode
+        document.body.classList.remove('viewer-mode');     // +++
         leftCol?.classList.remove('d-none');
+        filesHeader?.classList.remove('d-none');
+        filesCol?.classList.remove('col-lg-12');
+        filesCol?.classList.add('col-lg-8');
+
+        filesGrid.classList.remove('viewer-center');       // +++
+
         await loadFiles();
         startPolling();
     }

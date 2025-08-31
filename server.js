@@ -242,6 +242,22 @@ app.get(['/f/:id','/file/:id','/view/:id'], (_req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// NEW: pretty direct-file URL that keeps original filename in the path
+app.get('/u/:id/:name', (req, res) => {
+    const { id } = req.params;
+    const manifest = loadManifest();
+    const item = manifest.files.find(f => f.id === id);
+    if (!item) return res.status(404).send('Not found');
+
+    const filepath = path.join(UPLOAD_DIR, item.filename);
+    if (!fs.existsSync(filepath)) return res.status(404).send('File missing');
+
+    // Serve as-is (no forced download); let browser decide by mimetype
+    if (item.mimetype) res.type(item.mimetype);
+    res.sendFile(filepath);
+});
+
+
 // Health check
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 

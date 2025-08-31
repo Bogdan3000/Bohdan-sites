@@ -454,13 +454,18 @@ function renderViewer(file) {
     const actions = document.createElement('div');
     actions.className = 'file-actions';
     const viewerUrl = new URL(location.href).toString();
+    const prettyDirectUrl = new URL(
+        `/u/${file.id}/${encodeURIComponent(file.originalname)}`,
+        location.origin
+    ).toString();
+
     actions.innerHTML = `
     <a class="btn btn-sm btn-outline-primary" href="${file.downloadUrl}">
       <i class="bi bi-download me-1"></i>Download
     </a>
-    <a class="btn btn-sm btn-outline-secondary" href="${file.url}" target="_blank" rel="noopener">
-      <i class="bi bi-box-arrow-up-right me-1"></i>Direct file
-    </a>
+    <button class="btn btn-sm btn-outline-secondary" id="btnCopyDirect">
+      <i class="bi bi-link-45deg me-1"></i>Copy direct link
+    </button>
     <button class="btn btn-sm btn-outline-success" id="btnCopyViewer">
       <i class="bi bi-link-45deg me-1"></i>Copy page link
     </button>
@@ -474,6 +479,12 @@ function renderViewer(file) {
 
     document.getElementById('btnCopyViewer')?.addEventListener('click', async () => {
         try { await navigator.clipboard.writeText(viewerUrl); toast('Link copied'); }
+        catch { toast('Failed to copy link'); }
+    });
+
+    // NEW: copy pretty direct file url (with original filename in path)
+    document.getElementById('btnCopyDirect')?.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(prettyDirectUrl); toast('Link copied'); }
         catch { toast('Failed to copy link'); }
     });
 }

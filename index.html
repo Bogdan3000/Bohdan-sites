@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Interaktiv bilvelger – stor katalog (CarQuery API)</title>
+    <!-- CarQuery JS (klient-side API som gir ekte merker/modeller/trim) -->
+    <!-- jQuery требуются для CarQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- CarQuery JS (должен идти ПОСЛЕ jQuery) -->
+    <script src="https://www.carqueryapi.com/js/carquery.0.3.4.js"></script>
+    <style>
+        :root{
+            --bg:#0b0f14; --surface:#111820; --surface-2:#0f1721; --accent:#2dd4bf; --accent-2:#60a5fa; --muted:#9aa4af; --text:#e6edf3; --good:#22c55e; --warn:#f59e0b;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%}
+        body{margin:0; font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial; color:var(--text);
+            background: radial-gradient(1200px 800px at 70% -10%, #16212d 0%, var(--bg) 60%);
+        }
+        .container{max-width:1200px; margin:0 auto; padding:24px; display:grid; gap:24px; grid-template-columns: 1.1fr 1fr;}
+        header{grid-column:1 / -1; display:flex; align-items:center; justify-content:space-between; gap:12px}
+        h1{margin:0; font-size:clamp(1.3rem, 2vw + 1rem, 2.2rem)}
+        .badge{border:1px solid #233042; color:var(--muted); padding:6px 10px; border-radius:999px; font-size:0.9rem}
+        .panel{background:linear-gradient(180deg, rgba(45,212,191,0.06), rgba(96,165,250,0.04)), var(--surface); border:1px solid #1e2937; border-radius:16px; padding:18px; box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+        label{font-weight:600; font-size:0.95rem}
+        .input, select{width:100%; margin-top:8px; padding:12px 14px; border-radius:12px; border:1px solid #253445; background:var(--surface-2); color:var(--text); outline:none}
+        .controls{display:grid; gap:12px}
+
+        .grid-2{display:grid; grid-template-columns: 1fr 1fr; gap:10px}
+        .grid-3{display:grid; grid-template-columns: repeat(3, 1fr); gap:10px}
+
+        .info{display:grid; gap:12px}
+        .specs{display:grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap:10px; margin-top:6px}
+        .chip{background:var(--surface-2); border:1px solid #233042; padding:10px 12px; border-radius:12px; text-align:center}
+        .chip b{display:block; font-size:1.05rem}
+        .chip small{color:var(--muted)}
+
+        .image-card{position:relative; overflow:hidden; border-radius:16px; border:1px solid #1e2937}
+        .image-card img{display:block; width:100%; height:100%; object-fit:cover; aspect-ratio: 16 / 10; filter:saturate(1.05) contrast(1.05)}
+
+        .table-wrap{overflow:auto; border:1px solid #243244; border-radius:12px}
+        table{width:100%; border-collapse:collapse; min-width:420px}
+        th, td{padding:10px 12px; border-bottom:1px solid #223043; text-align:right}
+        th:first-child, td:first-child{text-align:left}
+        thead th{position:sticky; top:0; background:var(--surface-2)}
+        tbody tr:hover{background:#0e1520}
+        .pos{color:var(--good)}
+        .warn{color:var(--warn)}
+
+        .fade-in{animation: fade .45s ease both}
+        @keyframes fade{from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none}}
+
+        footer{grid-column:1 / -1; color:var(--muted); font-size:0.92rem; display:grid; gap:6px}
+        a{color:var(--accent-2); text-decoration:none}
+        a:hover{text-decoration:underline}
+
+        @media (max-width: 980px){.container{grid-template-columns: 1fr}}
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>CarQuery</h1>
+        <span class="badge">Ihnatenko Bohdan</span>
+    </header>
+
+    <!-- VENSTRE SIDE: kontroller -->
+    <section class="panel">
+        <div class="controls">
+            <div class="grid-3">
+                <div>
+                    <label for="year">År</label>
+                    <select id="year" aria-label="Velg årsmodell"></select>
+                </div>
+                <div>
+                    <label for="make">Merke</label>
+                    <select id="make" aria-label="Velg merke"></select>
+                </div>
+                <div>
+                    <label for="model">Modell</label>
+                    <select id="model" aria-label="Velg modell"></select>
+                </div>
+            </div>
+
+            <div>
+                <label for="trim">Utstyrsnivå / Trim</label>
+                <select id="trim" size="7" aria-label="Velg trim"></select>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <label for="depr">Antatt verdifall pr år (%)</label>
+                    <input id="depr" class="input" type="number" min="0" max="50" step="1" value="15" />
+                </div>
+                <div>
+                    <label for="overridePrice">Overstyr pris (NOK)</label>
+                    <input id="overridePrice" class="input" type="number" min="0" step="1000" placeholder="Bruk hvis API mangler MSRP" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HØYRE SIDE: info + bilde -->
+    <section class="panel info" id="infoPanel" aria-live="polite"></section>
+    <div class="image-card" id="imgCard" aria-hidden="true">
+        <img id="carImg" alt="Bilde av valgt bil" src="" />
+    </div>
+</div>
+
+<script>
+    // ======= HJELP =======
+    const fmtNOK = n => new Intl.NumberFormat('nb-NO', { style: 'currency', currency: 'NOK', maximumFractionDigits: 0 }).format(n);
+    const clamp = (x, min, max) => Math.max(min, Math.min(max, x));
+
+    function computeDep(price, ratePercent, years = 5){
+        const r = clamp((ratePercent ?? 15), 0, 90) / 100;
+        const out = [];
+        let prev = price;
+        for(let y=1; y<=years; y++){
+            const value = Math.round(price * Math.pow(1 - r, y));
+            const loss = Math.max(0, prev - value);
+            out.push({ year: y, value, loss });
+            prev = value;
+        }
+        return out;
+    }
+
+    function renderTable(rows){
+        const body = rows.map(r => `
+        <tr>
+          <td>År ${r.year}</td>
+          <td>${fmtNOK(r.value)}</td>
+          <td class="pos">− ${fmtNOK(r.loss)}</td>
+        </tr>`).join("");
+        return `
+        <div class="table-wrap">
+          <table aria-label="Estimert verdiutvikling i fem år">
+            <thead><tr><th>Periode</th><th>Estimert verdi</th><th>Årlig verdifall</th></tr></thead>
+            <tbody>${body}</tbody>
+          </table>
+        </div>`;
+    }
+
+    async function resolveImage(make, model){
+        const base = 'https://en.wikipedia.org/w/api.php?origin=*';
+        async function searchOnce(term){
+            const url = `${base}&action=query&generator=search&gsrsearch=${encodeURIComponent(term)}&gsrlimit=1&prop=pageimages|pageterms&piprop=thumbnail&pithumbsize=1280&format=json`;
+            try {
+                const r = await fetch(url).then(x => x.json());
+                const pages = r?.query?.pages ? Object.values(r.query.pages) : [];
+                return pages?.[0]?.thumbnail?.source || null;
+            } catch { return null; }
+        }
+        let src = await searchOnce(`${make} ${model}`);
+        if(!src) src = await searchOnce(`${make} ${model} car`);
+        if(!src) src = await searchOnce(`${model} (${make})`);
+        return src || null;
+    }
+
+    function fallbackSVG(make, model){
+        const label = `${make} ${model}`;
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='1600' height='1000'>
+    <defs>
+      <linearGradient id='g' x1='0' x2='1' y1='0' y2='1'>
+        <stop offset='0%' stop-color='#0b0f14'/>
+        <stop offset='100%' stop-color='#1b2735'/>
+      </linearGradient>
+    </defs>
+    <rect width='100%' height='100%' fill='url(#g)'/>
+    <g fill='none' stroke='#2dd4bf55'><rect x='60' y='60' width='1480' height='880' rx='24'/></g>
+    <text x='50%' y='50%' fill='#e6edf3' font-family='Arial,Helvetica,sans-serif' font-size='56' text-anchor='middle'>${label}</text>
+    <text x='50%' y='58%' fill='#9aa4af' font-family='Arial,Helvetica,sans-serif' font-size='26' text-anchor='middle'>Bilde ikke funnet – legg inn eget</text>
+  </svg>`;
+        return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    }
+
+    async function setImage(make, model){
+        els.img.style.filter = 'blur(6px) saturate(0.9)';
+        const src = await resolveImage(make, model);
+        const finalSrc = src || fallbackSVG(make, model);
+        return new Promise((resolve) => {
+            els.img.onload = () => { els.img.style.filter = ''; resolve(); };
+            els.img.onerror = () => { els.img.src = fallbackSVG(make, model); els.img.style.filter=''; resolve(); };
+            els.img.src = finalSrc;
+            els.img.alt = `Bilde av ${make} ${model}`;
+        });
+    }
+
+
+    // ======= ELEMENTER =======
+    const els = {
+        year: document.getElementById('year'),
+        make: document.getElementById('make'),
+        model: document.getElementById('model'),
+        trim: document.getElementById('trim'),
+        info: document.getElementById('infoPanel'),
+        img: document.getElementById('carImg'),
+        imgCard: document.getElementById('imgCard'),
+        depr: document.getElementById('depr'),
+        overridePrice: document.getElementById('overridePrice'),
+    };
+
+    function derivePriceNOK(model){
+        const override = Number(els.overridePrice.value) || 0;
+        const usd = Number(model?.model_msrp) || 0;
+        const eur = Number(model?.model_msrp_eur) || 0;
+        const gbp = Number(model?.model_msrp_gbp) || 0;
+        const NOK_PER_USD = 10.5, NOK_PER_EUR = 11.5, NOK_PER_GBP = 13.3;
+        const nokFromApi = usd*NOK_PER_USD || eur*NOK_PER_EUR || gbp*NOK_PER_GBP || 0;
+        return override || Math.round(nokFromApi);
+    }
+
+    function deriveTopSpeed(model){
+        return Number(model?.model_top_speed_kph) || null;
+    }
+
+    function fetchAndRenderSelected(){
+        const trimSel = document.getElementById('trim');
+        const modelId = trimSel && trimSel.value ? trimSel.value : null;
+        if(!modelId){ return; }
+        $.getJSON(cq.base_url + "?callback=?", { cmd: "getModel", model: modelId }, function(resp){
+            const model = resp?.Model || resp?.["0"] || resp;
+            renderFromModel(model);
+        });
+    }
+
+    async function renderFromModel(model){
+        if(!model){ els.info.innerHTML = `<div class="warn">Ingen data for valgt trim.</div>`; return; }
+        const y = model.model_year || els.year.value;
+        const makeText = model.model_make_id || (els.make.options[els.make.selectedIndex]?.text || els.make.value);
+        const modelText = model.model_name || els.model.value;
+
+        await setImage(makeText, modelText);
+        els.imgCard.classList.remove('fade-in'); void els.imgCard.offsetWidth; els.imgCard.classList.add('fade-in');
+        const priceNOK = derivePriceNOK(model);
+        const topKph = deriveTopSpeed(model);
+        const deprRate = Number(els.depr.value) || 15;
+        const tableRows = priceNOK > 0 ? computeDep(priceNOK, deprRate, 5) : [];
+
+        const chips = [
+            `<div class=\"chip\"><b>${y}</b><small>Årsmodell</small></div>`,
+            `<div class=\"chip\"><b>${topKph ? topKph + ' km/t' : '—'}</b><small>Toppfart</small></div>`,
+            `<div class=\"chip\"><b>${priceNOK ? fmtNOK(priceNOK) : '—'}</b><small>Pris/MSRP</small></div>`,
+        ].join('');
+
+        const specsList = [
+            model.model_trim && `<li><b>Trim:</b> ${model.model_trim}</li>`,
+            model.model_body && `<li><b>Karosseri:</b> ${model.model_body}</li>`,
+            model.model_engine_fuel && `<li><b>Drivstoff:</b> ${model.model_engine_fuel}</li>`,
+            model.model_engine_position && `<li><b>Motorposisjon:</b> ${model.model_engine_position}</li>`,
+            model.model_engine_power_ps && `<li><b>Effekt:</b> ${model.model_engine_power_ps} PS</li>`,
+            model.model_engine_torque_nm && `<li><b>Moment:</b> ${model.model_engine_torque_nm} Nm</li>`,
+            model.model_drive && `<li><b>Drivlinje:</b> ${model.model_drive}</li>`,
+            model.model_transmission_type && `<li><b>Girkasse:</b> ${model.model_transmission_type}</li>`,
+            model.model_doors && `<li><b>Dører:</b> ${model.model_doors}</li>`,
+            model.model_seats && `<li><b>Seter:</b> ${model.model_seats}</li>`,
+        ].filter(Boolean).join('');
+
+        els.info.innerHTML = `
+        <div class=\"fade-in\">
+          <h2 style=\"margin:0 0 4px 0\">${makeText} ${modelText} (${y})</h2>
+          <div class=\"specs\">${chips}</div>
+          ${specsList ? `<ul style=\"margin:8px 0 0 18px; line-height:1.5\">${specsList}</ul>` : ''}
+          <h3 style=\"margin:14px 0 8px 0\">Verdi over 5 år</h3>
+          ${priceNOK ? renderTable(tableRows) : `<div class=\"warn\">Pris ikke tilgjengelig for denne trinnen. Oppgi «Overstyr pris (NOK)» for å beregne verdifall.</div>`}
+        </div>`;
+    }
+
+    // ======= CARQUERY INIT =======
+    let cq;
+    window.addEventListener('DOMContentLoaded', () => {
+        if (!window.jQuery) { console.warn('jQuery ikke lastet'); }
+        if (!window.CarQuery) { console.warn('CarQuery ikke lastet'); return; }
+        cq = new CarQuery();
+        cq.init();
+        // МАКСИМАЛЬНО много машин (без фильтров). Можно включить sold_in_us: true при желании
+        // cq.setFilters({ sold_in_us: true });
+        cq.initYearMakeModelTrim('year','make','model','trim');
+
+        $('#year, #make, #model').on('change', () => {
+            els.info.innerHTML = `<div class=\"warn\">Velg trim for detaljer.</div>`;
+        });
+        $('#trim').on('change', () => fetchAndRenderSelected());
+
+        els.info.innerHTML = `<div class=\"warn\">Velg merke → modell → trim</div>`;
+    });
+</script>
+</body>
+</html>

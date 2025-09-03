@@ -33,6 +33,7 @@ const PM2_PROCESS = process.env.PM2_PROCESS || process.env.pm_id;
 const PM2_CMD = process.env.PM2_CMD || 'pm2';
 const GIT_CMD = process.env.GIT_CMD || 'git';
 const DEPLOY_INSTALL = String(process.env.DEPLOY_INSTALL || 'false').toLowerCase() === 'true';
+const TURNSTILE_SECRET = process.env.TURNSTILE_SECRET_KEY || '';
 
 const app = express();
 
@@ -65,13 +66,13 @@ app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+            scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://challenges.cloudflare.com"],
             styleSrc: ["'self'", "https://cdn.jsdelivr.net", "https://bohdan.lol", "'unsafe-inline'"],
             fontSrc: ["'self'", "https://cdn.jsdelivr.net", "https://bohdan.lol", "data:"],
             imgSrc: ["'self'", "data:", "blob:"],
-            connectSrc: ["'self'"],
+            connectSrc: ["'self'", "https://challenges.cloudflare.com"],
             mediaSrc: ["'self'", "blob:"],
-            frameSrc: ["'self'", "https://docs.google.com"], // <— ДЛЯ DOC/DOCX/XLS/PPT предпросмотра
+            frameSrc: ["'self'", "https://docs.google.com", "https://challenges.cloudflare.com"],
             objectSrc: ["'none'"],
             baseUri: ["'self'"],
             frameAncestors: ["'self'"]
@@ -133,18 +134,47 @@ function saveManifest(manifest) {
     fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest, null, 2));
 }
 
+async function verifyTurnstileToken(token, ip) {
+    try {
+        if (!TURNSTILE_SECRET) return false;           // секрет не задан — блокируем
+        if (!token) return false;
+
+        const body = new URLSearchParams();
+        body.append('secret', TURNSTILE_SECRET);
+        body.append('response', token);
+        if (ip) body.append('remoteip', ip);
+
+        const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+            method: 'POST',
+            body
+        });
+        const js = await r.json().catch(() => ({}));
+        return Boolean(js.success);
+    } catch {
+        return false;
+    }
+}
+
 // Upload endpoint (supports optional delete password)
 app.post('/api/upload', upload.single('file'), async (req, res) => {
-    // Если клиент закроется ПРЯМО сейчас — подчистим .part
+    // если клиент внезапно оборвётся — чистим временный файл
     const cleanupOnAbort = () => { try { if (req._tempPath) fs.unlinkSync(req._tempPath); } catch {} };
     req.on('aborted', cleanupOnAbort);
-    req.on('close', () => {
-        // на всякий случай, если закрытие без aborted
-        if (!res.headersSent) cleanupOnAbort();
-    });
+    req.on('close', () => { if (!res.headersSent) cleanupOnAbort(); });
 
     try {
         if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+        // === Turnstile ===
+        const token =
+            (req.body && (req.body['cf-turnstile-response'] || req.body.turnstileToken)) || '';
+        const ok = await verifyTurnstileToken(token, req.ip);
+        if (!ok) {
+            // чистим tmp-файл и отказываем
+            cleanupOnAbort();
+            return res.status(403).json({ error: 'Captcha verification failed' });
+        }
+        // === /Turnstile ===
 
         const { originalname, mimetype, size } = req.file;
         const id = req._uploadId || path.parse(req.file.filename).name;
@@ -152,16 +182,11 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
         const finalName = `${id}${ext}`;
         const finalPath = path.join(UPLOAD_DIR, finalName);
 
-        // 1) Переименовываем *.part -> финальное имя
-        try {
-            fs.renameSync(req._tempPath || req.file.path, finalPath);
-        } catch (e) {
-            // Если rename не удался — удаляем хвост и падаем
-            try { fs.unlinkSync(req._tempPath || req.file.path); } catch {}
-            throw e;
-        }
+        // 1) переименуем .part -> финальное имя
+        try { fs.renameSync(req._tempPath || req.file.path, finalPath); }
+        catch (e) { try { fs.unlinkSync(req._tempPath || req.file.path); } catch {} ; throw e; }
 
-        // 2) Теперь безопасно пишем в манифест
+        // 2) пишем в манифест
         const now = new Date().toISOString();
         let deleteHash = null;
         const { deletePassword } = req.body || {};
@@ -171,20 +196,14 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 
         const manifest = loadManifest();
         manifest.files.push({
-            id,
-            filename: finalName,
-            originalname,
-            mimetype,
-            size,
-            uploadedAt: now,
-            downloads: 0,
-            deleteHash,
+            id, filename: finalName, originalname, mimetype, size,
+            uploadedAt: now, downloads: 0, deleteHash,
         });
         saveManifest(manifest);
 
         res.json({ ok: true, id });
     } catch (err) {
-        res.status(500).json({ error: err.message || 'Upload failed' });
+        return res.status(500).json({ error: err.message || 'Upload failed' });
     }
 });
 
@@ -257,6 +276,36 @@ app.get('/u/:id/:name', (req, res) => {
     res.sendFile(filepath);
 });
 
+app.delete('/api/files/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const manifest = loadManifest();
+        const idx = manifest.files.findIndex(f => f.id === id);
+        if (idx === -1) return res.status(404).json({ error: 'Not found' });
+
+        const item = manifest.files[idx];
+
+        // проверяем пароль, если файл защищён
+        if (item.deleteHash) {
+            const pass = (req.body && req.body.password) || '';
+            const admin = ADMIN_PASSWORD && pass === ADMIN_PASSWORD;
+            const userOk = pass && await bcrypt.compare(pass, item.deleteHash);
+            if (!(admin || userOk)) {
+                return res.status(403).json({ error: 'Invalid password' });
+            }
+        }
+
+        // удаляем файл и запись
+        const filepath = path.join(UPLOAD_DIR, item.filename);
+        try { if (fs.existsSync(filepath)) fs.unlinkSync(filepath); } catch {}
+        manifest.files.splice(idx, 1);
+        saveManifest(manifest);
+
+        return res.json({ ok: true });
+    } catch (e) {
+        return res.status(500).json({ error: 'Delete failed' });
+    }
+});
 
 // Health check
 app.get('/api/health', (_req, res) => res.json({ ok: true }));

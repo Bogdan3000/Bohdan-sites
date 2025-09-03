@@ -34,6 +34,9 @@ const filesCol = document.getElementById('filesCol');
 const filesHeader = document.getElementById('filesHeader');
 
 let toDelete = null;
+// Turnstile
+let turnstileToken = '';
+let turnstileWidgetId = null;
 
 // Data cache
 let files = [];
@@ -156,16 +159,29 @@ async function doUpload(){
         });
     }
 
+    // --- CAPTCHA ---
+    let captcha;
+    try {
+        captcha = await ensureCaptcha();
+    } catch (e) {
+        statusEl.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>' + esc(e.message) + '</span>';
+        hide(progressRow); hide(uploadsList);
+        return;
+    }
+    // ---------------
+
     const pwd = deletePassword.value.trim();
-  const promises = items.map(({file, bar, pct}) => {
-    const fd = new FormData();
-    fd.append('file', file);
-    if (pwd) fd.append('deletePassword', pwd);
-    return xhrUpload('/api/upload', fd, (loaded, total) => {
-      const p = total ? Math.round(loaded/total*100) : 0;
-      bar.style.width = p + '%'; pct.textContent = p + '%';
+    const promises = items.map(({file, bar, pct}) => {
+        const fd = new FormData();
+        fd.append('file', file);
+        if (pwd) fd.append('deletePassword', pwd);
+        // ключевое — это имя поля:
+        fd.append('cf-turnstile-response', captcha);
+        return xhrUpload('/api/upload', fd, (loaded, total) => {
+            const p = total ? Math.round(loaded/total*100) : 0;
+            bar.style.width = p + '%'; pct.textContent = p + '%';
+        });
     });
-  });
 
   try {
     await Promise.all(promises);
@@ -489,6 +505,20 @@ function renderViewer(file) {
     });
 }
 
+async function ensureCaptcha() {
+    // для managed виджета токен придёт в callback; если пусто — попробуем вручную обновить
+    if (window.turnstile && turnstileWidgetId) {
+        // попытка получить/обновить токен
+        const t = window.turnstile.getResponse(turnstileWidgetId);
+        if (t) { turnstileToken = t; }
+        if (!turnstileToken) {
+            try { window.turnstile.reset(turnstileWidgetId); } catch {}
+        }
+    }
+    if (!turnstileToken) throw new Error('Please complete the captcha');
+    return turnstileToken;
+}
+
 async function route() {
     const id = viewIdFromPath();
     if (id) {
@@ -524,5 +554,18 @@ async function route() {
 }
 
 window.addEventListener('popstate', route);
+
+// Инициализация Turnstile "managed" виджета
+window.addEventListener('load', () => {
+    if (window.turnstile && document.getElementById('turnstile-container')) {
+        turnstileWidgetId = window.turnstile.render('#turnstile-container', {
+            sitekey: document.getElementById('turnstile-container')?.getAttribute('data-sitekey'),
+            theme: 'dark',
+            callback: (token) => { turnstileToken = token; },
+            'error-callback': () => { turnstileToken = ''; },
+            'expired-callback': () => { turnstileToken = ''; }
+        });
+    }
+});
 
 route();

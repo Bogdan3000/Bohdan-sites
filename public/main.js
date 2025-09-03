@@ -1,4 +1,3 @@
-
 // Elements
 const fileInput = document.getElementById('fileInput');
 const dropArea = document.getElementById('dropArea');
@@ -11,6 +10,7 @@ const pwdRow = document.getElementById('pwdRow');
 const deletePassword = document.getElementById('deletePassword');
 const togglePwd = document.getElementById('togglePwd');
 const togglePwdVisibility = document.getElementById('togglePwdVisibility');
+const turnstileContainer = document.getElementById('turnstile-container');
 
 const filesGrid = document.getElementById('filesGrid');
 const emptyState = document.getElementById('emptyState');
@@ -44,11 +44,11 @@ let polling;
 
 // Helpers
 const fmtBytes = (bytes) => {
-  const sizes = ['B','KB','MB','GB','TB'];
-  if (!bytes && bytes !== 0) return '—';
-  if (bytes === 0) return '0 B';
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
+    const sizes = ['B','KB','MB','GB','TB'];
+    if (!bytes && bytes !== 0) return '—';
+    if (bytes === 0) return '0 B';
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + sizes[i];
 };
 const esc = (s='') => s.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
 
@@ -62,78 +62,106 @@ dropArea.addEventListener('click', openFileDialog);
 dropArea.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') openFileDialog(); });
 
 ['dragenter','dragover'].forEach(evt => dropArea.addEventListener(evt, (e) => {
-  e.preventDefault(); e.stopPropagation(); dropArea.classList.add('dragover');
+    e.preventDefault(); e.stopPropagation(); dropArea.classList.add('dragover');
 }));
 ['dragleave','drop'].forEach(evt => dropArea.addEventListener(evt, (e) => {
-  e.preventDefault(); e.stopPropagation(); dropArea.classList.remove('dragover');
+    e.preventDefault(); e.stopPropagation(); dropArea.classList.remove('dragover');
 }));
 dropArea.addEventListener('drop', (e) => {
-  const fl = e.dataTransfer.files;
-  if (fl && fl.length) {
-    fileInput.files = fl;
-    onFilePicked();
-  }
+    const fl = e.dataTransfer.files;
+    if (fl && fl.length) {
+        fileInput.files = fl;
+        onFilePicked();
+    }
 });
 fileInput.addEventListener('change', onFilePicked);
 
 // Prevent browser from navigating when dropping files outside the drop area
 function isFileDrag(e){
-  return e && e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+    return e && e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
 }
 ['dragover','drop'].forEach(evt => {
-  window.addEventListener(evt, (e) => {
-    if (isFileDrag(e)) {
-      e.preventDefault();
-    }
-  }, { passive: false });
+    window.addEventListener(evt, (e) => {
+        if (isFileDrag(e)) {
+            e.preventDefault();
+        }
+    }, { passive: false });
 });
 
+// Создание и уничтожение капчи
+function createCaptcha() {
+    if (turnstileWidgetId || !window.turnstile) return;
+
+    show(turnstileContainer);
+    turnstileWidgetId = window.turnstile.render('#turnstile-container', {
+        sitekey: '0x4AAAAAAByTHJ7wWbBRcuyf',
+        theme: 'dark',
+        callback: (token) => { turnstileToken = token; },
+        'error-callback': () => { turnstileToken = ''; },
+        'expired-callback': () => { turnstileToken = ''; }
+    });
+}
+
+function destroyCaptcha() {
+    if (turnstileWidgetId && window.turnstile) {
+        try {
+            window.turnstile.remove(turnstileWidgetId);
+        } catch {}
+        turnstileWidgetId = null;
+        turnstileToken = '';
+    }
+    hide(turnstileContainer);
+    turnstileContainer.innerHTML = '';
+}
+
 function onFilePicked(){
-  const n = fileInput.files.length;
-  if (n) {
-    show(preUploadRow);
-    show(uploadBtn);
-    statusEl.innerHTML = `<span class="text-secondary">Selected: <b>${n}</b> file${n>1?'s':''}</span>`;
-  } else {
-    statusEl.textContent = '';
-    hide(preUploadRow);
-    hide(pwdRow);
-    hide(uploadBtn);
-  }
+    const n = fileInput.files.length;
+    if (n) {
+        show(preUploadRow);
+        show(uploadBtn);
+        createCaptcha(); // Создаем капчу только при выборе файлов
+        statusEl.innerHTML = `<span class="text-secondary">Selected: <b>${n}</b> file${n>1?'s':''}</span>`;
+    } else {
+        statusEl.textContent = '';
+        hide(preUploadRow);
+        hide(pwdRow);
+        hide(uploadBtn);
+        destroyCaptcha(); // Убираем капчу если файлы не выбраны
+    }
 }
 
 // Toggle password section & visibility
 togglePwd?.addEventListener('click', () => { pwdRow.classList.toggle('d-none'); });
 togglePwdVisibility?.addEventListener('click', () => {
-  const type = deletePassword.type === 'password' ? 'text' : 'password';
-  deletePassword.type = type;
-  togglePwdVisibility.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
+    const type = deletePassword.type === 'password' ? 'text' : 'password';
+    deletePassword.type = type;
+    togglePwdVisibility.innerHTML = type === 'password' ? '<i class="bi bi-eye"></i>' : '<i class="bi bi-eye-slash"></i>';
 });
 
 // Upload (multi)
 async function doUpload(){
-  const fl = fileInput.files;
-  if (!fl || !fl.length) return;
-  statusEl.textContent = '';
-  show(progressRow);
-  show(uploadsList);
-  uploadsList.innerHTML = '';
+    const fl = fileInput.files;
+    if (!fl || !fl.length) return;
+    statusEl.textContent = '';
+    show(progressRow);
+    show(uploadsList);
+    uploadsList.innerHTML = '';
 
-  // Per-file UI rows
-  const items = [];
-  for (let i = 0; i < fl.length; i++) {
-    const f = fl[i];
-    const el = document.createElement('div');
-    el.className = 'upload-item';
-    el.innerHTML = `
+    // Per-file UI rows
+    const items = [];
+    for (let i = 0; i < fl.length; i++) {
+        const f = fl[i];
+        const el = document.createElement('div');
+        el.className = 'upload-item';
+        el.innerHTML = `
       <div class="name">${esc(f.name)}</div>
       <div class="meta">${(f.size?fmtBytes(f.size):'')} ${f.type?(' • ' + esc(f.type)) : ''}</div>
       <div class="progress w-100"><div class="progress-bar progress-bar-striped progress-bar-animated" style="width:0"></div></div>
       <div class="small text-secondary text-end"><span class="pct">0%</span></div>
     `;
-    uploadsList.appendChild(el);
-    items.push({ file: f, bar: el.querySelector('.progress-bar'), pct: el.querySelector('.pct') });
-  }
+        uploadsList.appendChild(el);
+        items.push({ file: f, bar: el.querySelector('.progress-bar'), pct: el.querySelector('.pct') });
+    }
     // Порог видимых строк прогресса без скролла
     const VISIBLE_MAX = 8;
 
@@ -183,18 +211,20 @@ async function doUpload(){
         });
     });
 
-  try {
-    await Promise.all(promises);
-    statusEl.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>All files uploaded</span>';
-    fileInput.value = '';
-    deletePassword.value = '';
-    hide(pwdRow); hide(preUploadRow); hide(uploadBtn);
-    setTimeout(() => { hide(progressRow); uploadsList.innerHTML=''; hide(uploadsList); }, 800);
-    await loadFiles();
-    toast('Upload complete');
-  } catch (e) {
-    statusEl.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>' + esc(e.message) + '</span>';
-  }
+    try {
+        await Promise.all(promises);
+        statusEl.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>All files uploaded</span>';
+        fileInput.value = '';
+        deletePassword.value = '';
+        hide(pwdRow); hide(preUploadRow); hide(uploadBtn);
+        destroyCaptcha(); // Убираем капчу после успешной загрузки
+        setTimeout(() => { hide(progressRow); uploadsList.innerHTML=''; hide(uploadsList); }, 800);
+        await loadFiles();
+        toast('Upload complete');
+    } catch (e) {
+        statusEl.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>' + esc(e.message) + '</span>';
+        // При ошибке капчу не убираем, пользователь может попробовать еще раз
+    }
 }
 
 let ACTIVE_UPLOADS = 0;
@@ -231,58 +261,58 @@ function xhrUpload(url, formData, onProgress) {
 }
 // Buttons
 uploadBtn.addEventListener('click', async () => {
-  if (!fileInput.files.length) {
-    const once = () => { fileInput.removeEventListener('change', once); if (fileInput.files.length) doUpload(); };
-    fileInput.addEventListener('change', once);
-    fileInput.click();
-    return;
-  }
-  await doUpload();
+    if (!fileInput.files.length) {
+        const once = () => { fileInput.removeEventListener('change', once); if (fileInput.files.length) doUpload(); };
+        fileInput.addEventListener('change', once);
+        fileInput.click();
+        return;
+    }
+    await doUpload();
 });
 fabUpload?.addEventListener('click', () => uploadBtn.click());
 
 // Auto refresh (poll) every 20s
 function startPolling(){
-  if (polling) clearInterval(polling);
-  polling = setInterval(loadFiles, 20000);
+    if (polling) clearInterval(polling);
+    polling = setInterval(loadFiles, 20000);
 }
 // Load & render
 let firstLoad = true;
 async function loadFiles(){
-  try {
-    const res = await fetch('/api/files');
-    const data = await res.json();
-    files = data.files || [];
-    filesCount.textContent = files.length;
-    render();
-  } catch (e) {
-    // ignore
-  }
+    try {
+        const res = await fetch('/api/files');
+        const data = await res.json();
+        files = data.files || [];
+        filesCount.textContent = files.length;
+        render();
+    } catch (e) {
+        // ignore
+    }
 }
 
 function render(){
-  filesGrid.innerHTML = '';
+    filesGrid.innerHTML = '';
 
-  if (!files.length) {
-    show(emptyState);
-    return;
-  }
-  hide(emptyState);
+    if (!files.length) {
+        show(emptyState);
+        return;
+    }
+    hide(emptyState);
 
-  const frag = document.createDocumentFragment();
-  files.forEach((f, idx) => {
-    const card = document.createElement('div');
-    card.className = 'file-card fade-in';
-    card.style.animationDelay = (idx * 40) + 'ms';
+    const frag = document.createDocumentFragment();
+    files.forEach((f, idx) => {
+        const card = document.createElement('div');
+        card.className = 'file-card fade-in';
+        card.style.animationDelay = (idx * 40) + 'ms';
 
-    const prev = document.createElement('div');
-    prev.className = 'preview shimmer';
-    prev.innerHTML = renderPreview(f);
-    card.appendChild(prev);
+        const prev = document.createElement('div');
+        prev.className = 'preview shimmer';
+        prev.innerHTML = renderPreview(f);
+        card.appendChild(prev);
 
-    const body = document.createElement('div');
-    body.className = 'body';
-    body.innerHTML = `
+        const body = document.createElement('div');
+        body.className = 'body';
+        body.innerHTML = `
       <div class="file-name" title="${esc(f.originalname)}">${esc(f.originalname)}</div>
       <div class="file-meta">
         <span>${fmtBytes(f.size)}</span>
@@ -291,15 +321,15 @@ function render(){
         <span>•</span>
         <span><i class="bi bi-download me-1"></i>${f.downloads || 0}</span>
         ${f.requiresPassword
-          ? '<span class="badge rounded-pill text-bg-secondary ms-1"><i class="bi bi-shield-lock me-1"></i>protected</span>'
-          : '<span class="badge rounded-pill badge-lock ms-1"><i class="bi bi-unlock me-1"></i>open delete</span>'}
+            ? '<span class="badge rounded-pill text-bg-secondary ms-1"><i class="bi bi-shield-lock me-1"></i>protected</span>'
+            : '<span class="badge rounded-pill badge-lock ms-1"><i class="bi bi-unlock me-1"></i>open delete</span>'}
       </div>
     `;
-    card.appendChild(body);
+        card.appendChild(body);
 
-    const actions = document.createElement('div');
-    actions.className = 'file-actions';
-      actions.innerHTML = `
+        const actions = document.createElement('div');
+        actions.className = 'file-actions';
+        actions.innerHTML = `
   <a class="btn btn-sm btn-outline-primary" href="${f.downloadUrl}" target="_blank" rel="noopener">
     <i class="bi bi-download me-1"></i>Download
   </a>
@@ -313,100 +343,100 @@ function render(){
     <i class="bi bi-trash3 me-1"></i>Delete
   </button>
 `;
-    card.appendChild(actions);
+        card.appendChild(actions);
 
-      actions.querySelector('.btn-copy').addEventListener('click', async () => {
-          try {
-              const shareUrl = new URL(`/f/${f.id}`, location.origin).toString();
-              await navigator.clipboard.writeText(shareUrl);
-              toast('Link copied');
-          } catch {
-              toast('Failed to copy link');
-          }
-      });
+        actions.querySelector('.btn-copy').addEventListener('click', async () => {
+            try {
+                const shareUrl = new URL(`/f/${f.id}`, location.origin).toString();
+                await navigator.clipboard.writeText(shareUrl);
+                toast('Link copied');
+            } catch {
+                toast('Failed to copy link');
+            }
+        });
 
-    actions.querySelector('.btn-delete').addEventListener('click', async () => {
-      toDelete = { id: f.id, name: f.originalname, requiresPassword: f.requiresPassword };
-      delFileName.textContent = f.originalname;
-      delPassword.value = '';
-      delError.classList.add('d-none');
+        actions.querySelector('.btn-delete').addEventListener('click', async () => {
+            toDelete = { id: f.id, name: f.originalname, requiresPassword: f.requiresPassword };
+            delFileName.textContent = f.originalname;
+            delPassword.value = '';
+            delError.classList.add('d-none');
 
-      if (!f.requiresPassword) {
-        try {
-          const resp = await fetch(`/api/files/${f.id}`, {
-            method: 'DELETE',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
-          });
-          const js = await resp.json().catch(() => ({}));
-          if (!resp.ok) throw new Error(js.error || 'Delete failed');
-          await loadFiles();
-          toast('File deleted');
-        } catch (e) {
-          toast(e.message || 'Delete failed');
-        }
-        return;
-      }
-      deleteModal.show();
+            if (!f.requiresPassword) {
+                try {
+                    const resp = await fetch(`/api/files/${f.id}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    const js = await resp.json().catch(() => ({}));
+                    if (!resp.ok) throw new Error(js.error || 'Delete failed');
+                    await loadFiles();
+                    toast('File deleted');
+                } catch (e) {
+                    toast(e.message || 'Delete failed');
+                }
+                return;
+            }
+            deleteModal.show();
+        });
+
+        frag.appendChild(card);
     });
 
-    frag.appendChild(card);
-  });
+    filesGrid.appendChild(frag);
 
-  filesGrid.appendChild(frag);
-
-  if (firstLoad) {
-    firstLoad = false;
-    setTimeout(() => { document.querySelectorAll('.shimmer').forEach(el => el.classList.remove('shimmer')); }, 500);
-  }
+    if (firstLoad) {
+        firstLoad = false;
+        setTimeout(() => { document.querySelectorAll('.shimmer').forEach(el => el.classList.remove('shimmer')); }, 500);
+    }
 }
 
 function renderPreview(f){
-  if (f.mimetype && f.mimetype.startsWith('image/')) {
-    return `<img src="${f.url}" alt="${esc(f.originalname)}">`;
-  } else if (f.mimetype && f.mimetype.startsWith('video/')) {
-    return `<video src="${f.url}" preload="metadata" controls></video>`;
-  } else if (f.mimetype && f.mimetype.startsWith('audio/')) {
-    return `<div class="icon text-secondary"><i class="bi bi-music-note-beamed"></i></div>`;
-  } else if (f.mimetype && f.mimetype.includes('pdf')) {
-    return `<div class="icon text-secondary"><i class="bi bi-filetype-pdf"></i></div>`;
-  } else if (f.mimetype && (f.mimetype.includes('zip') || f.mimetype.includes('x-7z'))) {
-    return `<div class="icon text-secondary"><i class="bi bi-file-zip"></i></div>`;
-  } else {
-    return `<div class="icon text-secondary"><i class="bi bi-file-earmark-text"></i></div>`;
-  }
+    if (f.mimetype && f.mimetype.startsWith('image/')) {
+        return `<img src="${f.url}" alt="${esc(f.originalname)}">`;
+    } else if (f.mimetype && f.mimetype.startsWith('video/')) {
+        return `<video src="${f.url}" preload="metadata" controls></video>`;
+    } else if (f.mimetype && f.mimetype.startsWith('audio/')) {
+        return `<div class="icon text-secondary"><i class="bi bi-music-note-beamed"></i></div>`;
+    } else if (f.mimetype && f.mimetype.includes('pdf')) {
+        return `<div class="icon text-secondary"><i class="bi bi-filetype-pdf"></i></div>`;
+    } else if (f.mimetype && (f.mimetype.includes('zip') || f.mimetype.includes('x-7z'))) {
+        return `<div class="icon text-secondary"><i class="bi bi-file-zip"></i></div>`;
+    } else {
+        return `<div class="icon text-secondary"><i class="bi bi-file-earmark-text"></i></div>`;
+    }
 }
 
 confirmDeleteBtn.addEventListener('click', async () => {
-  if (!toDelete) return;
-  const pwd = delPassword.value.trim();
-  if (toDelete.requiresPassword && !pwd) {
-    delError.textContent = 'Enter password (or admin password).';
-    delError.classList.remove('d-none');
-    return;
-  }
-  try {
-    const resp = await fetch(`/api/files/${toDelete.id}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pwd ? { password: pwd } : {})
-    });
-    const js = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(js.error || 'Delete failed');
-    deleteModal.hide();
-    toDelete = null;
-    await loadFiles();
-    toast('File deleted');
-  } catch (e) {
-    delError.textContent = e.message;
-    delError.classList.remove('d-none');
-  }
+    if (!toDelete) return;
+    const pwd = delPassword.value.trim();
+    if (toDelete.requiresPassword && !pwd) {
+        delError.textContent = 'Enter password (or admin password).';
+        delError.classList.remove('d-none');
+        return;
+    }
+    try {
+        const resp = await fetch(`/api/files/${toDelete.id}`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(pwd ? { password: pwd } : {})
+        });
+        const js = await resp.json().catch(() => ({}));
+        if (!resp.ok) throw new Error(js.error || 'Delete failed');
+        deleteModal.hide();
+        toDelete = null;
+        await loadFiles();
+        toast('File deleted');
+    } catch (e) {
+        delError.textContent = e.message;
+        delError.classList.remove('d-none');
+    }
 });
 
 function toast(text){
-  toastBody.textContent = text;
-  appToastEl.classList.add('show-soft');
-  appToast.show();
+    toastBody.textContent = text;
+    appToastEl.classList.add('show-soft');
+    appToast.show();
 }
 
 // ===== Router & Viewer =====
@@ -506,7 +536,7 @@ function renderViewer(file) {
 }
 
 async function ensureCaptcha() {
-    // для managed виджета токен придёт в callback; если пусто — попробуем вручную обновить
+    // для managed виджета токен придёт в callback; если пусто — пробуем вручную обновить
     if (window.turnstile && turnstileWidgetId) {
         // попытка получить/обновить токен
         const t = window.turnstile.getResponse(turnstileWidgetId);
@@ -555,17 +585,10 @@ async function route() {
 
 window.addEventListener('popstate', route);
 
-// Инициализация Turnstile "managed" виджета
+// Инициализация при загрузке страницы - НЕ создаем капчу автоматически
 window.addEventListener('load', () => {
-    if (window.turnstile && document.getElementById('turnstile-container')) {
-        turnstileWidgetId = window.turnstile.render('#turnstile-container', {
-            sitekey: document.getElementById('turnstile-container')?.getAttribute('data-sitekey'),
-            theme: 'dark',
-            callback: (token) => { turnstileToken = token; },
-            'error-callback': () => { turnstileToken = ''; },
-            'expired-callback': () => { turnstileToken = ''; }
-        });
-    }
+    // Убираем автоматическое создание капчи при загрузке страницы
+    // Капча будет создаваться только в функции createCaptcha()
 });
 
 route();

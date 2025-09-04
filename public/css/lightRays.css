@@ -1,0 +1,49 @@
+/* public/css/lightRays.css */
+
+/* Контейнер секции/области, где нужен фон */
+.light-rays {
+    position: relative;
+    overflow: hidden; /* чтобы канвас не торчал за края секции */
+}
+
+/* Слой с канвасом — растягиваем по контейнеру и уводим НИЖЕ контента */
+.light-rays-layer {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;  /* не мешает кликам */
+    z-index: 0;           /* это главное изменение — фон под контент */
+}
+
+/* Сам канвас */
+.light-rays-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: none;
+    /* при желании фоновую интенсивность можно ослабить */
+    /* opacity: .8; */
+}
+
+/* Любой контент внутри .light-rays — поверх фона */
+.light-rays > :not(.light-rays-layer) {
+    position: relative;
+    z-index: 1;
+}
+
+/* полупрозрачные панели поверх фона в пределах .light-rays */
+.light-rays .card,
+.light-rays .panel,
+.light-rays .upload-card,
+.light-rays .files-card {
+    background-color: rgba(17, 20, 24, 0.55) !important; /* было: сплошной */
+    border-color: rgba(255, 255, 255, 0.06) !important;
+    backdrop-filter: blur(8px) saturate(120%);
+    -webkit-backdrop-filter: blur(8px) saturate(120%);
+    box-shadow: 0 10px 30px rgba(0,0,0,.35);
+}
+
+/* если у карточек есть внутренний .body с фоном — уберём заливку */
+.light-rays .card .body,
+.light-rays .file-card .body {
+    background-color: transparent !important;
+}

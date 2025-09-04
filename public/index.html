@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="/public/css/components.css">
     <link rel="stylesheet" href="/public/css/viewer.css">
     <link rel="stylesheet" href="/public/css/lightRays.css">
+    <link rel="stylesheet" href="/public/css/electricBorder.css">
+    <link rel="stylesheet" href="/public/css/spotlightCard.css">
 
 </head>
 
@@ -43,7 +45,17 @@
     <div class="row g-4">
         <!-- LEFT: Upload -->
         <div class="col-12 col-lg-4 sticky-col" id="leftCol">
-            <div class="card shadow-lg h-100 lift">
+            <div class="card bg-glass shadow-lg h-100 lift"
+                 data-eb
+                 data-eb-color="#ff0000"
+                 data-eb-speed="0.5"
+                 data-eb-chaos="0.1"
+                 data-eb-thickness="2"
+                 data-spotlight
+                 data-spotlight-color="rgba(255, 0, 0, 0.25)"
+                 data-spotlight-size="50%"
+                 data-spotlight-opacity="1"
+                 style="border-radius:16px">
                 <div class="card-body">
                     <h5 class="card-title mb-3">Upload a file</h5>
 
@@ -97,7 +109,17 @@
 
         <!-- RIGHT: Files -->
         <div class="col-12 col-lg-8" id="filesCol">
-            <div class="card shadow-lg h-100 lift">
+            <div class="card bg-glass shadow-lg h-100 lift"
+                 data-eb
+                 data-eb-color="#ff0000"
+                 data-eb-speed="0.5"
+                 data-eb-chaos="0.1"
+                 data-eb-thickness="2"
+                 data-spotlight
+                 data-spotlight-color="rgba(255, 0, 0, 0.25)"
+                 data-spotlight-size="50%"
+                 data-spotlight-opacity="1"
+                 style="border-radius:16px">
                 <div class="card-body">
                     <div id="filesHeader" class="d-flex flex-column flex-md-row gap-2 align-items-stretch align-items-md-center justify-content-between">
                         <h5 class="card-title m-0 d-flex align-items-center gap-2">

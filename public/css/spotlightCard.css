@@ -1,0 +1,41 @@
+/* public/css/spotlightCard.css */
+/* Эффект "spotlight" поверх карточки. Совместим с bg-glass и ElectricBorder. */
+
+.card-spotlight {
+    position: relative;
+    border-radius: inherit;
+    overflow: hidden;            /* чтобы луч не выходил за радиус */
+    --mouse-x: 50%;
+    --mouse-y: 50%;
+    --spotlight-color: rgba(255,255,255,0.25);
+    --spotlight-size: 80%;
+    --spotlight-opacity: 0.6;
+    isolation: isolate;          /* аккуратнее со слоями */
+}
+
+/* Сам «блик» */
+.card-spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+            radial-gradient(
+                    circle at var(--mouse-x) var(--mouse-y),
+                    var(--spotlight-color),
+                    transparent var(--spotlight-size)
+            );
+    opacity: 0;                   /* по умолчанию скрыт */
+    transition: opacity .35s ease;
+    z-index: 3;                   /* выше контента (z1), ниже ElectricBorder (z10) */
+}
+
+/* Показываем при hover/focus внутри */
+.card-spotlight:hover::before,
+.card-spotlight:focus-within::before {
+    opacity: var(--spotlight-opacity);
+}
+
+/* При желании можно добавить blend:
+   mix-blend-mode: screen;  — но это может сделать текст бледнее */

@@ -12,17 +12,22 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 const router = express.Router();
 
+function formatFile(item) {
+  const { deleteHash, ...rest } = item;
+  return {
+    ...rest,
+    requiresPassword: Boolean(deleteHash),
+    url: `/uploads/${rest.filename}`,
+    downloadUrl: `/d/${rest.id}`,
+  };
+}
+
 router.get('/api/files', (_req, res) => {
   const manifest = loadManifest();
   const files = manifest.files
     .slice()
     .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))
-    .map(({ deleteHash, ...rest }) => ({
-      ...rest,
-      requiresPassword: !!deleteHash,
-      url: `/uploads/${rest.filename}`,
-      downloadUrl: `/d/${rest.id}`,
-    }));
+    .map(formatFile);
   res.json({ files });
 });
 
@@ -31,10 +36,7 @@ router.get('/api/files/:id', (req, res) => {
   const manifest = loadManifest();
   const item = manifest.files.find(f => f.id === id);
   if (!item) return res.status(404).json({ error: 'Not found' });
-  const { deleteHash, ...rest } = item;
-  return res.json({
-    file: { ...rest, requiresPassword: !!deleteHash, url: `/uploads/${rest.filename}`, downloadUrl: `/d/${rest.id}` }
-  });
+  return res.json({ file: formatFile(item) });
 });
 
 router.get('/d/:id', (req, res) => {

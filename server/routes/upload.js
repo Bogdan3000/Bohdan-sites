@@ -27,32 +27,34 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { files: 1, fileSize: MAX_FILE_SIZE_BYTES } });
 
 async function verifyTurnstileToken(token, ip) {
+  if (!TURNSTILE_SECRET || !token) return false;
   try {
-    if (!TURNSTILE_SECRET) return false;
-    if (!token) return false;
-    const body = new URLSearchParams();
-    body.append('secret', TURNSTILE_SECRET);
-    body.append('response', token);
+    const body = new URLSearchParams({ secret: TURNSTILE_SECRET, response: token });
     if (ip) body.append('remoteip', ip);
-    const r = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });
-    const js = await r.json().catch(() => ({}));
-    return Boolean(js.success);
-  } catch { return false; }
+    const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      body,
+    });
+    const data = await res.json();
+    return Boolean(data.success);
+  } catch {
+    return false;
+  }
 }
 
 const router = express.Router();
 
 router.post('/api/upload', upload.single('file'), async (req, res) => {
-  const cleanupOnAbort = () => { try { if (req._tempPath) fs.unlinkSync(req._tempPath); } catch {} };
-  req.on('aborted', cleanupOnAbort);
-  req.on('close', () => { if (!res.headersSent) cleanupOnAbort(); });
+  const removeTempFile = () => { try { if (req._tempPath) fs.unlinkSync(req._tempPath); } catch {} };
+  req.on('aborted', removeTempFile);
+  req.on('close', () => { if (!res.headersSent) removeTempFile(); });
 
   try {
     if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
 
     const token = (req.body && (req.body['cf-turnstile-response'] || req.body.turnstileToken)) || '';
     const ok = await verifyTurnstileToken(token, req.ip);
-    if (!ok) { cleanupOnAbort(); return res.status(403).json({ error: 'Captcha verification failed' }); }
+    if (!ok) { removeTempFile(); return res.status(403).json({ error: 'Captcha verification failed' }); }
 
     const { originalname, mimetype, size } = req.file;
     const id = req._uploadId || path.parse(req.file.filename).name;
@@ -60,8 +62,12 @@ router.post('/api/upload', upload.single('file'), async (req, res) => {
     const finalName = `${id}${ext}`;
     const finalPath = path.join(UPLOAD_DIR, finalName);
 
-    try { fs.renameSync(req._tempPath || req.file.path, finalPath); }
-    catch (e) { try { fs.unlinkSync(req._tempPath || req.file.path); } catch {} ; throw e; }
+    try {
+      fs.renameSync(req._tempPath || req.file.path, finalPath);
+    } catch (e) {
+      try { fs.unlinkSync(req._tempPath || req.file.path); } catch {}
+      throw e;
+    }
 
     const now = new Date().toISOString();
     let deleteHash = null;

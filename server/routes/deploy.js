@@ -24,12 +24,15 @@ router.post('/webhook', async (req, res) => {
     if (!verifyGithubSignature(WEBHOOK_SECRET, req.rawBody, sig)) {
       return res.status(401).json({ error: 'Invalid signature' });
     }
-    if (event !== 'push') return res.json({ ok: true, ignored: true, reason: 'not a push event' });
+    if (event !== 'push') {
+      return res.json({ ok: true, ignored: true, reason: 'not a push event' });
+    }
 
-    const payload = req.body || {};
-    const ref = payload.ref;
+    const { ref = '' } = req.body || {};
     const expectedRef = `refs/heads/${DEPLOY_BRANCH}`;
-    if (ref !== expectedRef) return res.json({ ok: true, ignored: true, reason: `ref ${ref} != ${expectedRef}` });
+    if (ref !== expectedRef) {
+      return res.json({ ok: true, ignored: true, reason: `ref ${ref} != ${expectedRef}` });
+    }
 
     res.status(202).json({ ok: true, action: 'deploy-started', branch: DEPLOY_BRANCH });
     setImmediate(async () => {

@@ -24,11 +24,11 @@ export async function runDeploy({ GIT_CMD, REPO_DIR, DEPLOY_BRANCH, DEPLOY_INSTA
     await execAsync(installCmd, { cwd, env });
   }
 
-    if (PM2_PROCESS) {
-        console.log(`[deploy] starting pm2 process: ${PM2_PROCESS}`);
-        await execAsync(`${PM2_CMD} start server/index.js --name ${PM2_PROCESS}`, { cwd, env });
-    } else {
-        console.warn('[deploy] PM2_PROCESS is not set; falling back to process exit for PM2 auto-restart');
-        setTimeout(() => process.exit(0), 500);
-    }
+  if (PM2_PROCESS) {
+    console.log(`[deploy] starting pm2 process: ${PM2_PROCESS}`);
+    await execAsync(`${PM2_CMD} start server/index.js --name ${PM2_PROCESS}`, { cwd, env });
+  } else {
+    console.warn('[deploy] PM2_PROCESS is not set; falling back to process exit for PM2 auto-restart');
+    setTimeout(() => process.exit(0), 500);
+  }
 }

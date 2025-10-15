@@ -78,28 +78,51 @@
 /* Audio control tidy */
 .file-card .preview audio { width: 92%; }
 
-/* === Footer (fixed bottom, minimal) === */
-.footer-fixed {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+/* === Footer (sleek bar style) === */
+.footer-bar {
     width: 100%;
-    background: rgba(0, 0, 0, 0.35);
     border-top: 1px solid rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(8px);
-    z-index: 999;
-    color: #ccc;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(10px);
+    color: #bcbcbc;
+    padding: 0.6rem 0;
+    font-size: 0.85rem;
 }
 
-.footer-fixed .container {
-    max-width: 1320px;
+.footer-bar .badge {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.2px;
 }
 
-/* Мелкие адаптации */
 @media (max-width: 576px) {
-    .footer-fixed .container {
-        flex-direction: column;
-        gap: 4px;
-        text-align: center;
+    .footer-bar {
+        padding-bottom: env(safe-area-inset-bottom, 10px);
     }
+    .footer-bar .container {
+        flex-direction: column;
+        gap: 3px;
+    }
+}
+
+/* === Hide upload block on mobile === */
+@media (max-width: 768px) {
+    #leftCol {
+        display: none !important;
+    }
+}
+
+/* Layout fix so footer stays at bottom */
+html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+main {
+    flex: 1 0 auto;
+}
+.footer-bar {
+    flex-shrink: 0;
 }

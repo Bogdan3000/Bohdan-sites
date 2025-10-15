@@ -24,21 +24,28 @@ app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
 app.use(express.json({
-  limit: '2mb',
-  verify: (req, _res, buf) => { req.rawBody = buf; }
+    limit: '2mb',
+    verify: (req, _res, buf) => { req.rawBody = buf; }
 }));
 
-const apiLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+const apiLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false
+});
 app.use('/api/', apiLimiter);
 
-app.use(helmet({ contentSecurityPolicy: { directives: cspDirectives } }));
+app.use(helmet({
+    contentSecurityPolicy: { directives: cspDirectives }
+}));
 
 // Health
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 // SPA entry
 app.get('/', (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Routes
@@ -47,12 +54,12 @@ app.use(filesRoutes);
 app.use(deployRoutes);
 
 // SPA routes for file viewer
-app.get(['/f/:id','/file/:id','/view/:id'], (_req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+app.get(['/f/:id', '/file/:id', '/view/:id'], (_req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 const server = app.listen(PORT, () => {
-  console.log(`FileShare running on http://localhost:${PORT}`);
+    console.log(`FileShare running on http://localhost:${PORT}`);
 });
 
 server.requestTimeout = 0;
